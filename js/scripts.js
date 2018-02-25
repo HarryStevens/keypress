@@ -2,6 +2,8 @@
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
 var context = new AudioContext()
 
+var scale_x_property = "id";
+
 // an empty array for storing currently playing notes
 var currNotes =  [];
 
@@ -11,10 +13,12 @@ var allNotes = [
   {frequency: 293.66, note: "D", octave: 4, keyboard: "s"},
   {frequency: 329.63, note: "E", octave: 4, keyboard: "d"},
   {frequency: 349.23, note: "F", octave: 4, keyboard: "f"},
+  // {frequency: 369.99, note: "F#4", octave: 4, keyboard: "h"},
   {frequency: 392.00, note: "G", octave: 4, keyboard: "j"},
   {frequency: 440, note: "A", octave: 4, keyboard: "k"},
   {frequency: 493.88, note: "B", octave: 4, keyboard: "l"},
-  {frequency: 523.25, note: "C", octave: 5, keyboard: ";"}
+  {frequency: 523.25, note: "C", octave: 5, keyboard: ";"},
+  // {frequency: 293.66 * 2, note: "D", octave: 5, keyboard: "'"}
 ]
 
 // each note needs additional information
@@ -40,12 +44,12 @@ var svg = d3.select("body").append("svg").attr("width", width).attr("height", he
 
 var scale_size = d3.scaleLinear().range([0, height]).domain([0, 1200]);
 var scale_color = d3.scaleLinear().range(["tomato", "steelblue"]).domain(d3.extent(allNotes, d => d.frequency));
-var scale_x = d3.scaleBand().rangeRound([200, width - 200]).domain(allNotes.map(d => d.id));
+var scale_x = d3.scaleBand().rangeRound([200, width - 200]).domain(allNotes.map(d => d[scale_x_property]));
 
 var line = svg.append("line")
-  .attr("x1", scale_x(allNotes[0].id) + scale_x.bandwidth() / 2)
+  .attr("x1", scale_x(allNotes[0][scale_x_property]) + scale_x.bandwidth() / 2)
   .attr("y1", height / 2)
-  .attr("x2", scale_x(allNotes[allNotes.length - 1].id)  + scale_x.bandwidth() / 2)
+  .attr("x2", scale_x(allNotes[allNotes.length - 1][scale_x_property])  + scale_x.bandwidth() / 2)
   .attr("y2", height / 2)
   .style("stroke", "#ccc");
 
@@ -127,7 +131,7 @@ d3.timer(() => {
       .style("fill", d => scale_color(d.frequency))
     .merge(circle)
       .attr("cy", height / 2)
-      .attr("cx", d => scale_x(d.id) + scale_x.bandwidth() / 2)
+      .attr("cx", d => scale_x(d[scale_x_property]) + scale_x.bandwidth() / 2)
       .attr("r", d => scale_size(d.duration));
 
   text.enter().append("text")
@@ -135,7 +139,7 @@ d3.timer(() => {
       .style("fill", "#fff")
       .text(d => d.note)
     .merge(text)
-      .attr("x", d => scale_x(d.id) + scale_x.bandwidth() / 2)
+      .attr("x", d => scale_x(d[scale_x_property]) + scale_x.bandwidth() / 2)
       .attr("y", height / 2)
       .attr("dy", d => scale_size(d.duration) / 4)
       .style("font-size", d => scale_size(d.duration));
@@ -166,8 +170,21 @@ d3.select(window).on("resize", () => {
   scale_size.range([0, height]);
   
   line
-    .attr("x1", scale_x(allNotes[0].note + allNotes[0].octave) + scale_x.bandwidth() / 2)
+    .attr("x1", scale_x(allNotes[0][scale_x_property]) + scale_x.bandwidth() / 2)
     .attr("y1", height / 2)
-    .attr("x2", scale_x(allNotes[allNotes.length - 1].note + allNotes[allNotes.length - 1].octave)  + scale_x.bandwidth() / 2)
+    .attr("x2", scale_x(allNotes[allNotes.length - 1].id) + scale_x.bandwidth() / 2)
     .attr("y2", height / 2)
 });
+
+
+/* kuch kuch hota hai
+klkjfk
+klkjfk
+jkjfdja
+jfkjfff
+
+asdfkj
+asdfkjjj
+jkjfdja
+jfkjfff
+*/
