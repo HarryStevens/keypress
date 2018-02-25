@@ -1,121 +1,177 @@
-// notes
-var changeKey = 1
+// create a new audio context
+window.AudioContext = window.AudioContext || window.webkitAudioContext;
+var context = new AudioContext()
 
-var c4 = {frequency: 261.63 / changeKey, note: "C"},
-	d4 = {frequency: 293.66 / changeKey, note: "D"},
-	e4 = {frequency: 329.63 / changeKey, note: "E"},
-	f4 = {frequency: 349.23 / changeKey, note: "F"},
-	g4 = {frequency: 392.00 / changeKey, note: "G"},
-	a4 = {frequency: 440 / changeKey, note: "A"},
-	b4 = {frequency: 493.88 / changeKey, note: "B"},
-	c5 = {frequency: 523.25 / changeKey, note: "C"};
+// an empty array for storing currently playing notes
+var currNotes =  [];
 
-var mapper = {
-	a: c4,
-	s: d4,
-	d: e4,
-	f: f4,
-	j: g4,
-	k: a4,
-	l: b4,
-	";": c5
-}
+// an array of all available notes. add notes and everything else updates
+var allNotes = [
+	{frequency: 261.63, note: "C", octave: 4, keyboard: "a"},
+	{frequency: 293.66, note: "D", octave: 4, keyboard: "s"},
+	{frequency: 329.63, note: "E", octave: 4, keyboard: "d"},
+	{frequency: 349.23, note: "F", octave: 4, keyboard: "f"},
+	{frequency: 392.00, note: "G", octave: 4, keyboard: "j"},
+	{frequency: 440, note: "A", octave: 4, keyboard: "k"},
+	{frequency: 493.88, note: "B", octave: 4, keyboard: "l"},
+	{frequency: 523.25, note: "C", octave: 5, keyboard: ";"}
+]
+
+// each note needs additional information
+allNotes.forEach(d => {
+	d.id = d.note + d.octave;
+	d.duration = 0;
+	d.timer = d3.timer(() => {});
+	d.timer.stop();
+
+	d.oscillator = null;
+	d.gain = null;
+
+	return d;
+});
+
+// this is the note that plays if you don't select one of the keyboard values in allNotes
+var defaultNote = allNotes[0];
 
 // set up display
 var width = window.innerWidth, height = window.innerHeight;
 
 var svg = d3.select("body").append("svg").attr("width", width).attr("height", height);
 
-var line = svg.append("line").style("stroke", "#ccc");
-
-var circle = svg.append("circle")
-		.attr("cx", width / 2)
-		.attr("cy", height / 2);
-
-var text = svg.append("text")
-		.attr("y", height / 2)
-		.style("text-anchor", "middle")
-		.style("fill", "#fff");
-
 var scale_size = d3.scaleLinear().range([0, height]).domain([0, 1200]);
-var scale_color = d3.scaleLinear().range(["tomato", "steelblue"]).domain([c4.frequency, c5.frequency]);
-var scale_x = d3.scaleLinear().range([200, width - 200]).domain([c4.frequency, c5.frequency]);
+var scale_color = d3.scaleLinear().range(["tomato", "steelblue"]).domain(d3.extent(allNotes, d => d.frequency));
+var scale_x = d3.scaleBand().rangeRound([200, width - 200]).domain(allNotes.map(d => d.note + d.octave));
 
-// keypress and timer logic
-var isPressed = false;
-var key;
+var line = svg.append("line")
+	.attr("x1", scale_x(allNotes[0].note + allNotes[0].octave) + scale_x.bandwidth() / 2)
+	.attr("y1", height / 2)
+	.attr("x2", scale_x(allNotes[allNotes.length - 1].note + allNotes[allNotes.length - 1].octave)  + scale_x.bandwidth() / 2)
+	.attr("y2", height / 2)
+	.style("stroke", "#ccc");
+
+// timer
 var t = d3.timer(() => {});
 t.stop();
 
-line
-	.attr("x1", scale_x(c4.frequency))
-	.attr("y1", height / 2)
-	.attr("x2", scale_x(c5.frequency))
-	.attr("y2", height / 2);
-
-// audio context
-window.AudioContext = window.AudioContext || window.webkitAudioContext;
-
-var audioContext = new AudioContext();
-var isPlaying = false;
-var sourceNode = null;
-var analyser = null;
-
-
-d3.select(window).on("resize", () => {
-	width = window.innerWidth, height = window.innerHeight;
-	svg.attr("width", width).attr("height", height);
-	circle.attr("cx", width / 2).attr("cy", height / 2);
-	text.attr("x", width / 2).attr("y", height / 2);
-	scale_size.range([0, height]);
-});
-
 d3.select(document).on("keypress", () => {
-	
-	if (isPressed == false && isPlaying == false){
-		isPressed = true;
-		isPlaying = true;
 
-		key = d3.event.key;	
-		var n = mapper[key]
-		note = n ? n.frequency : c4.frequency;
+	var pressedNote = getPressedNote(d3.event.key);
+	var pressedNote_index = allNotes.indexOf(pressedNote);
 
-		t.restart((elapsed) => {
-			// display
-			circle
-				.attr("r", scale_size(elapsed))
-				.attr("cx", scale_x(note))
-				.style("fill", scale_color(note));
-			
-			text
-				.style("font-size", scale_size(elapsed))
-				.attr("dy", (scale_size(elapsed) / 4) + "px")
-				.attr("x", scale_x(note))
-				.text(n ? n.note : c4.note);	
-			
+	// if the note being played is not in the currNotes array
+	if (currNotes.indexOf(pressedNote.id) == -1){
+
+		// add the current note to the array
+		currNotes.push(pressedNote.id);
+		
+		// add time to the duration of the current note
+		allNotes[pressedNote_index].timer.restart(elapsed => {
+
+			allNotes[pressedNote_index].duration = elapsed;
+
 		});
 
-		// audio
-		sourceNode = audioContext.createOscillator();
-		sourceNode.frequency.value = note;
-		analyser = audioContext.createGain();
-		sourceNode.connect( analyser );
-		analyser.connect( audioContext.destination );
+		// create an oscillator and gain, and start the oscillator
+		allNotes[pressedNote_index].oscillator = context.createOscillator();
+		allNotes[pressedNote_index].oscillator.frequency.value = pressedNote.frequency;
+		allNotes[pressedNote_index].gain = context.createGain();
+		allNotes[pressedNote_index].oscillator.connect(allNotes[pressedNote_index].gain);
+		allNotes[pressedNote_index].gain.connect(context.destination);
 
-		sourceNode.start(0);
+		allNotes[pressedNote_index].oscillator.start(0);
+
 	}
+	
 
 }).on("keyup", () => {
-	isPressed = false;
-	key = "";
-	t.stop();
 	
-	circle.transition().duration(200).attr("r", 0);
-	text.transition().duration(200).style("font-size", 0);
+	var pressedNote = getPressedNote(d3.event.key);
+	var pressedNote_index = allNotes.indexOf(pressedNote);
 
-	analyser.gain.setTargetAtTime(0, audioContext.currentTime, 0.2);
+	// remove the pressed note from the current notes array
+	removeItem(currNotes, pressedNote.id);
+
+	// stop the time in the current note
+	allNotes[pressedNote_index].timer.stop();
 	
-  sourceNode = null;
-  analyser = null;
-  isPlaying = false;
+	// fade out the gain and remove the oscillator and gain from the current note
+	allNotes[pressedNote_index].gain.gain.setTargetAtTime(0, context.currentTime, 0.2);
+	allNotes[pressedNote_index].oscillator = null;
+	allNotes[pressedNote_index].gain = null;	
+
+	// fade out the duration of the current note, so the circle doesnt just disappear
+	var duration_scale = d3.scalePow().range([allNotes[pressedNote_index].duration, 0]).domain([0, 200]);
+
+	var t = d3.timer((e) => {
+	
+		allNotes[pressedNote_index].duration = duration_scale(e) < 0 ? 0 : duration_scale(e);
+		if (duration_scale(e) == 0) t.stop();
+		
+	});
+	
+});
+
+// this is always running, and drawing depending on the current data
+d3.timer(() => {
+
+	// dimensions
+	width = window.innerWidth, height = window.innerHeight;
+
+	// scales
+	scale_x.range([200, width - 200]);
+	scale_size.range([0, height]);
+
+	var circle = svg.selectAll("circle")
+			.data(allNotes, d => d.id);
+
+	var text = svg.selectAll("text")
+			.data(allNotes, d => d.id);
+
+	circle.enter().append("circle")
+			.style("fill", d => scale_color(d.frequency))
+		.merge(circle)
+			.attr("cy", height / 2)
+			.attr("cx", d => scale_x(d.id) + scale_x.bandwidth() / 2)
+			.attr("r", d => scale_size(d.duration));
+
+	text.enter().append("text")
+			.style("text-anchor", "middle")
+			.style("fill", "#fff")
+			.text(d => d.note)
+		.merge(text)
+			.attr("x", d => scale_x(d.id) + scale_x.bandwidth() / 2)
+			.attr("y", height / 2)
+			.attr("dy", d => scale_size(d.duration) / 4)
+			.style("font-size", d => scale_size(d.duration));
+
+});
+
+function getPressedNote(key){
+	var pressedNote = allNotes.filter(d => d.keyboard == key);
+	return pressedNote.length == 0 ? defaultNote : pressedNote[0];
+}
+
+function removeItem(arr, item){
+  var index = arr.indexOf(item);
+  if (index > -1){
+    arr.splice(index, 1);
+  }
+  return arr;
+}
+
+// resize
+d3.select(window).on("resize", () => {
+		
+	// dimensions
+	width = window.innerWidth, height = window.innerHeight;
+	svg.attr("width", width).attr("height", height);
+	// scales
+	scale_x.range([200, width - 200]);
+	scale_size.range([0, height]);
+	
+	line
+		.attr("x1", scale_x(allNotes[0].note + allNotes[0].octave) + scale_x.bandwidth() / 2)
+		.attr("y1", height / 2)
+		.attr("x2", scale_x(allNotes[allNotes.length - 1].note + allNotes[allNotes.length - 1].octave)  + scale_x.bandwidth() / 2)
+		.attr("y2", height / 2)
 });
