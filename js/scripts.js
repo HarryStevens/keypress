@@ -43,9 +43,9 @@ var scale_color = d3.scaleLinear().range(["tomato", "steelblue"]).domain(d3.exte
 var scale_x = d3.scaleBand().rangeRound([200, width - 200]).domain(allNotes.map(d => d.id));
 
 var line = svg.append("line")
-  .attr("x1", scale_x(allNotes[0].note + allNotes[0].octave) + scale_x.bandwidth() / 2)
+  .attr("x1", scale_x(allNotes[0].id) + scale_x.bandwidth() / 2)
   .attr("y1", height / 2)
-  .attr("x2", scale_x(allNotes[allNotes.length - 1].note + allNotes[allNotes.length - 1].octave)  + scale_x.bandwidth() / 2)
+  .attr("x2", scale_x(allNotes[allNotes.length - 1].id)  + scale_x.bandwidth() / 2)
   .attr("y2", height / 2)
   .style("stroke", "#ccc");
 
