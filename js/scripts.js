@@ -40,7 +40,7 @@ var svg = d3.select("body").append("svg").attr("width", width).attr("height", he
 
 var scale_size = d3.scaleLinear().range([0, height]).domain([0, 1200]);
 var scale_color = d3.scaleLinear().range(["tomato", "steelblue"]).domain(d3.extent(allNotes, d => d.frequency));
-var scale_x = d3.scaleBand().rangeRound([200, width - 200]).domain(allNotes.map(d => d.note + d.octave));
+var scale_x = d3.scaleBand().rangeRound([200, width - 200]).domain(allNotes.map(d => d.id));
 
 var line = svg.append("line")
   .attr("x1", scale_x(allNotes[0].note + allNotes[0].octave) + scale_x.bandwidth() / 2)
