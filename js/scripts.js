@@ -49,10 +49,6 @@ var line = svg.append("line")
   .attr("y2", height / 2)
   .style("stroke", "#ccc");
 
-// timer
-var t = d3.timer(() => {});
-t.stop();
-
 d3.select(document).on("keypress", () => {
 
   var pressedNote = getPressedNote(d3.event.key);
