@@ -78,7 +78,11 @@ d3.select(document).on("keypress", () => {
 
     allNotes[pressedNote_index].oscillator.start(0);
 
+    d3.select(".circle-" + pressedNote.id).moveToFront();
+
   }
+
+
   
 
 }).on("keyup", () => {
@@ -126,6 +130,7 @@ d3.timer(() => {
       .data(allNotes, d => d.id);
 
   circle.enter().append("circle")
+  		.attr("class", d => "circle circle-" + d.id)
       .style("fill", d => scale_color(d.frequency))
     .merge(circle)
       .attr("cy", height / 2)
