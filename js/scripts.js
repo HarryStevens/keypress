@@ -13,12 +13,10 @@ var allNotes = [
   {frequency: 293.66, note: "D", octave: 4, keyboard: "s"},
   {frequency: 329.63, note: "E", octave: 4, keyboard: "d"},
   {frequency: 349.23, note: "F", octave: 4, keyboard: "f"},
-  // {frequency: 369.99, note: "F#4", octave: 4, keyboard: "h"},
   {frequency: 392.00, note: "G", octave: 4, keyboard: "j"},
   {frequency: 440, note: "A", octave: 4, keyboard: "k"},
   {frequency: 493.88, note: "B", octave: 4, keyboard: "l"},
-  {frequency: 523.25, note: "C", octave: 5, keyboard: ";"},
-  // {frequency: 293.66 * 2, note: "D", octave: 5, keyboard: "'"}
+  {frequency: 523.25, note: "C", octave: 5, keyboard: ";"}
 ]
 
 // each note needs additional information
