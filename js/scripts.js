@@ -1,26 +1,35 @@
+var color_data_select = d3.select("#color-data");
+var color_data_value = color_data_select.node().value;
+
+var x_data_select = d3.select("#x-position-data");
+var x_data_value = x_data_select.node().value;
+
+var size_data_select = d3.select("#size-data");
+var size_data_value = size_data_select.node().value;
+
 // create a new audio context
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
 var context = new AudioContext()
-
-var scale_x_property = "id";
 
 // an empty array for storing currently playing notes
 var currNotes =  [];
 
 // an array of all available notes. add notes and everything else updates
 var allNotes = [
-  {frequency: 261.63, note: "C", octave: 4, keyboard: "a"},
-  {frequency: 293.66, note: "D", octave: 4, keyboard: "s"},
-  {frequency: 329.63, note: "E", octave: 4, keyboard: "d"},
-  {frequency: 349.23, note: "F", octave: 4, keyboard: "f"},
-  {frequency: 392.00, note: "G", octave: 4, keyboard: "j"},
-  {frequency: 440, note: "A", octave: 4, keyboard: "k"},
-  {frequency: 493.88, note: "B", octave: 4, keyboard: "l"},
-  {frequency: 523.25, note: "C", octave: 5, keyboard: ";"}
-]
+  {frequency: 261.63, note: "C", octave: 4, keyboard: "q"},
+  {frequency: 293.66, note: "D", octave: 4, keyboard: "w"},
+  {frequency: 329.63, note: "E", octave: 4, keyboard: "e"},
+  {frequency: 349.23, note: "F", octave: 4, keyboard: "r"},
+  {frequency: 392.00, note: "G", octave: 4, keyboard: "u"},
+  {frequency: 440, note: "A", octave: 4, keyboard: "i"},
+  {frequency: 493.88, note: "B", octave: 4, keyboard: "o"},
+  {frequency: 523.25, note: "C", octave: 5, keyboard: "p"}
+];
 
 // each note needs additional information
-allNotes.forEach(d => {
+allNotes.forEach((d, i) => {
+  d.index = i;
+  d.middle = 2;
   d.id = d.note + d.octave;
   d.duration = 0;
   d.timer = d3.timer(() => {});
@@ -32,7 +41,7 @@ allNotes.forEach(d => {
   return d;
 });
 
-// this is the note that plays if you don't select one of the keyboard values in allNotes
+// this is the note that plays if you don't press one of the keyboard values in allNotes
 var defaultNote = allNotes[0];
 
 // set up display
@@ -41,13 +50,13 @@ var width = window.innerWidth, height = window.innerHeight;
 var svg = d3.select("body").append("svg").attr("width", width).attr("height", height);
 
 var scale_size = d3.scaleLinear().range([0, height]).domain([0, 1200]);
-var scale_color = d3.scaleLinear().range(["tomato", "steelblue"]).domain(d3.extent(allNotes, d => d.frequency));
-var scale_x = d3.scaleBand().rangeRound([200, width - 200]).domain(allNotes.map(d => d[scale_x_property]));
+var scale_color = d3.scaleLinear().range(["tomato", "steelblue"]).domain(d3.extent(allNotes, d => d[color_data_value]));
+var scale_x = d3.scaleLinear().range([200, width - 200]).domain(d3.extent(allNotes, d => d[x_data_value]));
 
 var line = svg.append("line")
-  .attr("x1", scale_x(allNotes[0][scale_x_property]) + scale_x.bandwidth() / 2)
+  .attr("x1", scale_x(allNotes[0][x_data_value]))
   .attr("y1", height / 2)
-  .attr("x2", scale_x(allNotes[allNotes.length - 1][scale_x_property])  + scale_x.bandwidth() / 2)
+  .attr("x2", scale_x(allNotes[allNotes.length - 1][x_data_value]))
   .attr("y2", height / 2)
   .style("stroke", "#ccc");
 
@@ -79,11 +88,9 @@ d3.select(document).on("keypress", () => {
     allNotes[pressedNote_index].oscillator.start(0);
 
     d3.select(".circle-" + pressedNote.id).moveToFront();
+    d3.select(".text-" + pressedNote.id).moveToFront();
 
   }
-
-
-  
 
 }).on("keyup", () => {
   
@@ -119,33 +126,46 @@ d3.timer(() => {
   // dimensions
   width = window.innerWidth, height = window.innerHeight;
 
-  // scales
+  // mappings
+  color_data_value = color_data_select.node().value;
+  x_data_value = x_data_select.node().value;
+  size_data_value = size_data_select.node().value;
+
+  // scale ranges
   scale_x.range([200, width - 200]);
   scale_size.range([0, height]);
 
+  // scale domains
+  scale_color.domain(getColorDomain(color_data_value));
+  scale_x.domain(getXDomain(x_data_value));
+  scale_size.domain(getSizeDomain(size_data_value));
+
   var circle = svg.selectAll("circle")
-      .data(allNotes, d => d.id);
+    .data(allNotes, d => d.id);
 
   var text = svg.selectAll("text")
       .data(allNotes, d => d.id);
 
   circle.enter().append("circle")
-  		.attr("class", d => "circle circle-" + d.id)
-      .style("fill", d => scale_color(d.frequency))
+      .attr("class", d => "circle circle-" + d.id)
     .merge(circle)
       .attr("cy", height / 2)
-      .attr("cx", d => scale_x(d[scale_x_property]) + scale_x.bandwidth() / 2)
-      .attr("r", d => scale_size(d.duration));
+      .attr("cx", d => scale_x(d[x_data_value]))
+      .attr("r", d => scale_size(d[size_data_value]))
+      .style("fill", d => scale_color(d[color_data_value]))
+      .style("fill-opacity", d => d.duration == 0 ? 0 : 1)
 
   text.enter().append("text")
+      .attr("class", d => "text text-" + d.id)
       .style("text-anchor", "middle")
-      .style("fill", "#fff")
       .text(d => d.note)
     .merge(text)
-      .attr("x", d => scale_x(d[scale_x_property]) + scale_x.bandwidth() / 2)
+      .attr("x", d => scale_x(d[x_data_value]))
       .attr("y", height / 2)
-      .attr("dy", d => scale_size(d.duration) / 4)
-      .style("font-size", d => scale_size(d.duration));
+      .attr("dy", d => scale_size(d[size_data_value]) / 4)
+      .style("font-size", d => scale_size(d[size_data_value]))
+      .style("opacity", d => d.duration == 0 ? 0 : 1)
+      .style("fill", color_data_value == "none" ? "#fff" : "#000");
 
 });
 
@@ -169,15 +189,47 @@ d3.select(window).on("resize", () => {
   width = window.innerWidth, height = window.innerHeight;
   svg.attr("width", width).attr("height", height);
   // scales
-  scale_x.range([200, width - 200]);
+  scale_x.range([200, width - 200]).domain(getXDomain(x_data_value));
   scale_size.range([0, height]);
   
   line
-    .attr("x1", scale_x(allNotes[0][scale_x_property]) + scale_x.bandwidth() / 2)
+    .attr("x1", scale_x(allNotes[0][x_data_value]))
     .attr("y1", height / 2)
-    .attr("x2", scale_x(allNotes[allNotes.length - 1].id) + scale_x.bandwidth() / 2)
-    .attr("y2", height / 2)
+    .attr("x2", scale_x(allNotes[allNotes.length - 1][x_data_value]))
+    .attr("y2", height / 2);
 });
+
+function getSizeDomain(size_data_value){
+  return size_data_value == "duration" ? [0, 1200] :
+    size_data_value == "frequency" ? [allNotes[0].frequency - 100, allNotes[allNotes.length - 1].frequency * 8] : 
+    [1, 12];
+}
+
+function getColorDomain(color_data_value){
+  return color_data_value == "frequency" ? d3.extent(allNotes, d => d[color_data_value]) : 
+    color_data_value == "duration" ? [0, 600] :
+    [Infinity, Infinity];
+}
+
+function getXDomain(x_data_value){
+  return x_data_value == "index" ? d3.extent(allNotes, d => d[x_data_value]) :
+    x_data_value == "duration" ? [0, 1200] :
+    [1, 3];
+}
+
+["circle", "text"].forEach(element => {
+  var selector = "input[name='" + element + "']";
+  d3.selectAll(selector).on("change", () => {
+    d3.selectAll(element).style("display", d3.selectAll(selector + ":checked").property("value"))
+  });  
+});
+
+d3.select(".dropdown-wrapper").on("mouseover", () => {
+  d3.select(".dropdown-wrapper").style("opacity", 1);
+}).on("mouseout", () => {
+  d3.select(".dropdown-wrapper").style("opacity", 0);
+});
+
 
 
 /* kuch kuch hota hai

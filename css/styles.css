@@ -5,3 +5,32 @@ body {
 text {
 	display: none;
 }
+circle {
+	stroke: #fff;
+}
+.dropdown-wrapper {
+	position: absolute;
+	background: rgba(255, 255, 255, .8);
+	opacity: 0;
+	transition: opacity .3s;
+}
+.dropdown-container {
+	display: inline-block;
+	text-align: center;
+	padding: 5px;
+	margin-right: 20px;
+}
+.dropdown-container .name {
+	padding: 2px;
+}
+input {
+	margin-right: 5px;
+}
+.name {
+	font-size: .9em;
+	border-bottom: 1px solid black;
+	margin-bottom: 4px;
+}
+.radio-option {
+	font-size: .75em;
+}
