@@ -22,15 +22,13 @@ circle {
 }
 .dropdown-container .name {
 	padding: 2px;
-}
-input {
-	margin-right: 5px;
-}
-.name {
 	font-size: .9em;
 	border-bottom: 1px solid black;
 	margin-bottom: 4px;
 }
-.radio-option {
+.dropdown-container input {
+	margin-right: 5px;
+}
+.dropdown-container .radio-option {
 	font-size: .75em;
 }
