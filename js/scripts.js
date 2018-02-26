@@ -165,7 +165,7 @@ d3.timer(() => {
       .attr("dy", d => scale_size(d[size_data_value]) / 4)
       .style("font-size", d => scale_size(d[size_data_value]))
       .style("opacity", d => d.duration == 0 ? 0 : 1)
-      .style("fill", color_data_value == "none" ? "#fff" : "#000");
+      .style("fill", color_data_value == "none" && document.querySelector("input[name='circle']:checked").value == "block" ? "#fff" : "#000");
 
 });
 
