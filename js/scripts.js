@@ -1,3 +1,5 @@
+var recordedNotes = [];
+
 var color_data_select = d3.select("#color-data");
 var color_data_value = color_data_select.node().value;
 
@@ -47,18 +49,59 @@ var defaultNote = allNotes[0];
 // set up display
 var width = window.innerWidth, height = window.innerHeight;
 
-var svg = d3.select("body").append("svg").attr("width", width).attr("height", height);
+var svg_3d = d3.select("#display-3d").append("svg").attr("width", width).attr("height", height);
+var svg_4d = d3.select("#display-4d").append("svg").attr("width", width).attr("height", height);
 
-var scale_size = d3.scaleLinear().range([0, height]).domain([0, 1200]);
+//scales
 var scale_color = d3.scaleLinear().range(["tomato", "steelblue"]).domain(d3.extent(allNotes, d => d[color_data_value]));
-var scale_x = d3.scaleLinear().range([200, width - 200]).domain(d3.extent(allNotes, d => d[x_data_value]));
+var scale_size_3d = d3.scaleLinear().range([0, height]).domain([0, 1200]);
+var scale_size_4d = d3.scaleLinear().range([5, 40])
+var scale_x_3d = d3.scaleLinear().range([200, width - 200]).domain(d3.extent(allNotes, d => d[x_data_value]));
+var scale_x_4d = d3.scaleBand().rangeRound([0, width]).domain(allNotes.map(d => d.id));
 
-var line = svg.append("line")
-  .attr("x1", scale_x(allNotes[0][x_data_value]))
+// draw the center line
+var line = svg_3d.append("line")
+  .attr("x1", scale_x_3d(allNotes[0][x_data_value]))
   .attr("y1", height / 2)
-  .attr("x2", scale_x(allNotes[allNotes.length - 1][x_data_value]))
+  .attr("x2", scale_x_3d(allNotes[allNotes.length - 1][x_data_value]))
   .attr("y2", height / 2)
   .style("stroke", "#ccc");
+
+// create the force simulation
+var simulation = d3.forceSimulation(recordedNotes)
+  .force("charge", d3.forceManyBody().strength(.01))
+  .force("collide", d3.forceCollide().radius(d => scale_size_4d(d.duration)))
+  .force("y", d3.forceY(height / 2))
+  .on("tick", redraw);
+
+allNotes.forEach(note => {
+  simulation.force(note.id, isolate( d3.forceX( scale_x_4d(note.id) + scale_x_4d.bandwidth() / 2 ) , d => d.id == note.id))
+});
+
+function redraw() {
+  
+  var circle = svg_4d.selectAll("circle")
+      .data(recordedNotes, d => d.uid)
+  
+  circle.enter().append("circle")
+      .style("fill", d => scale_color(d.frequency))
+      .style("stroke", "#fff")
+    .merge(circle)
+      .attr("cx", d => d.x)
+      .attr("cy", d => d.y)
+      .attr("r", d => scale_size_4d(d.duration));
+
+}
+
+function isolate(force, filter) {
+  var initialize = force.initialize;
+  force.initialize = function() { initialize.call(force, recordedNotes.filter(filter)); };
+  return force;
+}
+
+allNotes.forEach(note => {
+  simulation.force(note.id, isolate( d3.forceX( scale_x_4d(note.id) + scale_x_4d.bandwidth() / 2 ) , d => d.id == note.id))
+});
 
 d3.select(document).on("keypress", () => {
 
@@ -97,8 +140,27 @@ d3.select(document).on("keypress", () => {
   var pressedNote = getPressedNote(d3.event.key);
   var pressedNote_index = allNotes.indexOf(pressedNote);
 
+  // add the pressed notes to the recordedNotes
+  var copy = jz.arr.deepCopy(allNotes[pressedNote_index]);
+  var d = new Date();
+  copy.timestamp = d.getTime() - copy.duration;
+  copy.uid = jz.str.randomString(20);
+  scale_size_4d.domain(d3.extent(recordedNotes, d => d.duration));
+  copy.x = scale_x_4d(pressedNote.id) + scale_x_4d.bandwidth() / 2;
+  copy.y = height / 2;
+  recordedNotes.push(copy);
+
+  simulation.nodes(recordedNotes).alpha(1).restart();
+
+  allNotes.forEach(note => {
+    simulation.force(note.id, isolate( d3.forceX( scale_x_4d(note.id) + scale_x_4d.bandwidth() / 2 ) , d => d.id == note.id))
+  })
+
+  simulation.on("tick", redraw);
+
+
   // remove the pressed note from the current notes array
-  removeItem(currNotes, pressedNote.id);
+  currNotes = jz.arr.removeItem(currNotes, pressedNote.id);
 
   // stop the time in the current note
   allNotes[pressedNote_index].timer.stop();
@@ -132,38 +194,38 @@ d3.timer(() => {
   size_data_value = size_data_select.node().value;
 
   // scale ranges
-  scale_x.range([200, width - 200]);
-  scale_size.range([0, height]);
+  scale_x_3d.range([200, width - 200]);
+  scale_size_3d.range([0, height]);
 
   // scale domains
   scale_color.domain(getColorDomain(color_data_value));
-  scale_x.domain(getXDomain(x_data_value));
-  scale_size.domain(getSizeDomain(size_data_value));
+  scale_x_3d.domain(getXDomain(x_data_value));
+  scale_size_3d.domain(getSizeDomain(size_data_value));
 
-  var circle = svg.selectAll("circle")
+  var circle = svg_3d.selectAll("circle")
     .data(allNotes, d => d.id);
 
-  var text = svg.selectAll("text")
+  var text = svg_3d.selectAll("text")
       .data(allNotes, d => d.id);
 
   circle.enter().append("circle")
       .attr("class", d => "circle circle-" + d.id)
     .merge(circle)
       .attr("cy", height / 2)
-      .attr("cx", d => scale_x(d[x_data_value]))
-      .attr("r", d => scale_size(d[size_data_value]))
+      .attr("cx", d => scale_x_3d(d[x_data_value]))
+      .attr("r", d => scale_size_3d(d[size_data_value]))
       .style("fill", d => scale_color(d[color_data_value]))
-      .style("fill-opacity", d => d.duration == 0 ? 0 : 1)
+      .style("fill-opacity", d => d.duration == 0 ? 0 : 1)      
 
   text.enter().append("text")
       .attr("class", d => "text text-" + d.id)
       .style("text-anchor", "middle")
       .text(d => d.note)
     .merge(text)
-      .attr("x", d => scale_x(d[x_data_value]))
+      .attr("x", d => scale_x_3d(d[x_data_value]))
       .attr("y", height / 2)
-      .attr("dy", d => scale_size(d[size_data_value]) / 4)
-      .style("font-size", d => scale_size(d[size_data_value]))
+      .attr("dy", d => scale_size_3d(d[size_data_value]) / 4)
+      .style("font-size", d => scale_size_3d(d[size_data_value]))
       .style("opacity", d => d.duration == 0 ? 0 : 1)
       .style("fill", color_data_value == "none" && document.querySelector("input[name='circle']:checked").value == "block" ? "#fff" : "#000");
 
@@ -174,28 +236,20 @@ function getPressedNote(key){
   return pressedNote.length == 0 ? defaultNote : pressedNote[0];
 }
 
-function removeItem(arr, item){
-  var index = arr.indexOf(item);
-  if (index > -1){
-    arr.splice(index, 1);
-  }
-  return arr;
-}
-
 // resize
 d3.select(window).on("resize", () => {
     
   // dimensions
   width = window.innerWidth, height = window.innerHeight;
-  svg.attr("width", width).attr("height", height);
+  svg_3d.attr("width", width).attr("height", height);
   // scales
-  scale_x.range([200, width - 200]).domain(getXDomain(x_data_value));
-  scale_size.range([0, height]);
+  scale_x_3d.range([200, width - 200]).domain(getXDomain(x_data_value));
+  scale_size_3d.range([0, height]);
   
   line
-    .attr("x1", scale_x(allNotes[0][x_data_value]))
+    .attr("x1", scale_x_3d(allNotes[0][x_data_value]))
     .attr("y1", height / 2)
-    .attr("x2", scale_x(allNotes[allNotes.length - 1][x_data_value]))
+    .attr("x2", scale_x_3d(allNotes[allNotes.length - 1][x_data_value]))
     .attr("y2", height / 2);
 });
 

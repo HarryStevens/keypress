@@ -2,10 +2,11 @@ body {
 	margin: 0;
 	font-family: "Helvetica Neue", sans-serif;
 }
-text {
+
+.text {
 	display: none;
 }
-circle {
+.circle {
 	stroke: #fff;
 }
 .dropdown-wrapper {
@@ -31,4 +32,11 @@ circle {
 }
 .dropdown-container .radio-option {
 	font-size: .75em;
+}
+
+#display-4d {
+	margin-left: -10000px;
+}
+.domain {
+	display: none;
 }
