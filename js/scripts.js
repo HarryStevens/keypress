@@ -203,6 +203,9 @@ function getXDomain(x_data_value){
 }
 
 function draw(dimension_selector, transition){
+  if (!transition) transition = false;
+
+  console.log(dimension_selector, transition);
 
   // dimensions
   width = window.innerWidth, height = window.innerHeight;
@@ -247,26 +250,26 @@ function draw(dimension_selector, transition){
 
   for (var i = 0; i < 120; i++) simulation.tick(); // run the simulation
 
-  circle = svg.selectAll("circle")
+  circle = svg.selectAll(".circle")
       .data(draw_data, d => d[draw_property]);
 
-  circle.exit()
-    .transition(transition ? 750 : 0)
-      .attr("r", 0)
-    .remove();
+  if (transition){
+    circle.exit()
+      .transition(750)  
+        .attr("d", d => shape2path.circle({cx: d.x, cy: d.y, r: 0}))
+      .remove();
+  } else {
+    circle.exit().remove();
+  }
 
   circle.transition().duration(transition ? 750 : 0)
-      .attr("cy", d => d.y)
-      .attr("cx", d => d.x)
-      .attr("r", d => rescale * scale_size(d[size_data_value]))
+      .attr("d", d => shape2path.circle({cx: d.x, cy: d.y, r: rescale * scale_size(d[size_data_value])}))
       .style("fill", d => scale_color(d[color_data_value]))
       .style("display", d3.selectAll("input[name='circle']:checked").property("value"))
 
-  circle.enter().append("circle")
+  circle.enter().append("path")
       .attr("class", d => "circle circle-" + d.id)
-      .attr("cy", d => d.y)
-      .attr("cx", d => d.x)
-      .attr("r", d => rescale * scale_size(d[size_data_value]))
+      .attr("d", d => shape2path.circle({cx: d.x, cy: d.y, r: rescale * scale_size(d[size_data_value])}))
       .style("fill", d => scale_color(d[color_data_value]))
       .style("display", d3.selectAll("input[name='circle']:checked").property("value"))
 
@@ -317,15 +320,15 @@ d3.select("#reset-4d").on("click", () => {
 
 // update chart on 3d/4d selection
 d3.selectAll("input[name='4d']").on("change", () => {
-  updateOnChange();
+  updateOnChange(d3.selectAll("input[name='4d']").property("value") == "on");
 });
 // update the chart on select change
 d3.selectAll("select").on("change", () => {
-  updateOnChange();
+  updateOnChange(d3.selectAll("input[name='4d']").property("value") == "on");
 });
 
-function updateOnChange(){
-  draw(d3.selectAll("input[name='4d']").property("value"), true);
+function updateOnChange(transition){
+  draw(d3.select("input[name='4d']:checked").property("value"), transition);
 }
 
 // show or hide the controls
