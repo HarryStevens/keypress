@@ -3,13 +3,10 @@ body {
 	font-family: "Helvetica Neue", sans-serif;
 }
 
-.text {
-	display: none;
-}
+
 .circle {
 	stroke: #fff;
 }
-
 
 .dropdown-wrapper {
 	position: absolute;
