@@ -57,18 +57,23 @@ var defaultNote = dimension_options.off.data[0];
 // set up display
 var width = window.innerWidth, height = window.innerHeight;
 
-var svg_3d = d3.select("#display-3d").append("svg").attr("width", width).attr("height", height);
+var svg = d3.select("#display-3d").append("svg").attr("width", width).attr("height", height);
 
 //scales
+
+// the size scale range max needs to change if there are a lot of circles
+var size_range_max = height; 
+var scale_size = d3.scaleLinear().range([0, size_range_max]).domain([0, 1200]);
+
 var scale_color = d3.scaleLinear().range(["tomato", "steelblue"]).domain(d3.extent(dimension_options.off.data, d => d[color_data_value]));
-var scale_size_3d = d3.scaleLinear().range([0, height]).domain([0, 1200]);
-var scale_x_3d = d3.scaleLinear().range([200, width - 200]).domain(d3.extent(dimension_options.off.data, d => d[x_data_value]));
+var scale_x = d3.scaleLinear().range([200, width - 200]).domain(d3.extent(dimension_options.off.data, d => d[x_data_value]));
+
 
 // draw the center line
-var line = svg_3d.append("line")
-  .attr("x1", scale_x_3d(dimension_options.off.data[0][x_data_value]))
+var line = svg.append("line")
+  .attr("x1", scale_x(dimension_options.off.data[0][x_data_value]))
   .attr("y1", height / 2)
-  .attr("x2", scale_x_3d(dimension_options.off.data[dimension_options.off.data.length - 1][x_data_value]))
+  .attr("x2", scale_x(dimension_options.off.data[dimension_options.off.data.length - 1][x_data_value]))
   .attr("y2", height / 2)
   .style("stroke", "#ccc");
 
@@ -160,15 +165,16 @@ d3.select(window).on("resize", () => {
     
   // dimensions
   width = window.innerWidth, height = window.innerHeight;
-  svg_3d.attr("width", width).attr("height", height);
+  svg.attr("width", width).attr("height", height);
+  
   // scales
-  scale_x_3d.range([200, width - 200]).domain(getXDomain(x_data_value));
-  scale_size_3d.range([0, height]);
+  scale_x.range([200, width - 200]).domain(getXDomain(x_data_value));
+  scale_size.range([0, size_range_max]);
   
   line
-    .attr("x1", scale_x_3d(dimension_options.off.data[0][x_data_value]))
+    .attr("x1", scale_x(dimension_options.off.data[0][x_data_value]))
     .attr("y1", height / 2)
-    .attr("x2", scale_x_3d(dimension_options.off.data[dimension_options.off.data.length - 1][x_data_value]))
+    .attr("x2", scale_x(dimension_options.off.data[dimension_options.off.data.length - 1][x_data_value]))
     .attr("y2", height / 2);
 
   draw(d3.selectAll("input[name='4d']").property("value"))
@@ -188,8 +194,11 @@ function getColorDomain(color_data_value){
 }
 
 function getXDomain(x_data_value){
+  var dimension_selector = d3.selectAll("input[name='4d']").property("value")
   return x_data_value == "indx" ? d3.extent(dimension_options.off.data, d => d[x_data_value]) :
-    x_data_value == "duration" ? [0, 1000] :
+    x_data_value == "duration" ? 
+      dimension_selector == "on" ? d3.extent(dimension_options[dimension_selector].data, d => d.duration) :
+      [0, 1000] :
     [1, 3];
 }
 
@@ -204,35 +213,52 @@ function draw(dimension_selector, transition){
   size_data_value = size_data_select.node().value;
 
   // scale ranges
-  scale_x_3d.range([200, width - 200]);
-  scale_size_3d.range([0, height]);
+  scale_x.range([200, width - 200]);
+  scale_size.range([0, height]);
 
   // scale domains
   scale_color.domain(getColorDomain(color_data_value));
-  scale_x_3d.domain(getXDomain(x_data_value));
-  scale_size_3d.domain(getSizeDomain(size_data_value));
+  scale_x.domain(getXDomain(x_data_value));
+  scale_size.domain(getSizeDomain(size_data_value));
 
   var draw_data = dimension_options[dimension_selector].data;
   var draw_property = dimension_options[dimension_selector].property;
 
   var simulation = d3.forceSimulation(draw_data) 
     .force("y", d3.forceY(height / 2))
-    .force("x", d3.forceX(d => scale_x_3d(d[x_data_value])).strength(1))
+    .force("x", d3.forceX(d => scale_x(d[x_data_value])).strength(1))
     .stop();
 
-  if (dimension_selector == "on") simulation.force("collide", d3.forceCollide(d => scale_size_3d(d[size_data_value])));
+  for (var i = 0; i < 1; i++) simulation.tick(); // get some position    
 
-  for (var i = 0; i < 200; i++) simulation.tick(); // get some position  
+  // do some things differently in 4d mode
+  var rescale = 1;
+  var rescale_coefficient = 6;
+  if (dimension_selector == "on") {
 
-  circle = svg_3d.selectAll("circle")
+    // figure out if we need to make things smaller
+    var biggest_over = d3.max(draw_data, d => rescale_coefficient * scale_size(d[size_data_value]) - d.y);
+
+    rescale = biggest_over > 0 ? height / (height + biggest_over) : 1;
+
+    simulation.force("collide", d3.forceCollide(d => rescale * scale_size(d[size_data_value])));
+
+  }
+
+  for (var i = 0; i < 120; i++) simulation.tick(); // run the simulation
+
+  circle = svg.selectAll("circle")
       .data(draw_data, d => d[draw_property]);
 
-  circle.exit().remove();
+  circle.exit()
+    .transition(transition ? 750 : 0)
+      .attr("r", 0)
+    .remove();
 
   circle.transition().duration(transition ? 750 : 0)
       .attr("cy", d => d.y)
       .attr("cx", d => d.x)
-      .attr("r", d => scale_size_3d(d[size_data_value]))
+      .attr("r", d => rescale * scale_size(d[size_data_value]))
       .style("fill", d => scale_color(d[color_data_value]))
       .style("display", d3.selectAll("input[name='circle']:checked").property("value"))
 
@@ -240,20 +266,24 @@ function draw(dimension_selector, transition){
       .attr("class", d => "circle circle-" + d.id)
       .attr("cy", d => d.y)
       .attr("cx", d => d.x)
-      .attr("r", d => scale_size_3d(d[size_data_value]))
+      .attr("r", d => rescale * scale_size(d[size_data_value]))
       .style("fill", d => scale_color(d[color_data_value]))
       .style("display", d3.selectAll("input[name='circle']:checked").property("value"))
 
-  var text = svg_3d.selectAll("text")
+  var text = svg.selectAll("text")
       .data(draw_data, d => d[draw_property]);
 
-  text.exit().remove();
+  text.exit()
+    .transition(transition ? 750 : 0)
+      .attr("dy", 0)
+      .style("font-size", 0)
+    .remove();
 
   text.transition().duration(transition ? 750 : 0)
       .attr("x", d => d.x)
       .attr("y", d => d.y)
-      .attr("dy", d => scale_size_3d(d[size_data_value]) / 4)
-      .style("font-size", d => scale_size_3d(d[size_data_value]) + "px")
+      .attr("dy", d => rescale * scale_size(d[size_data_value]) / 4)
+      .style("font-size", d => rescale * scale_size(d[size_data_value]) + "px")
       .style("fill", color_data_value == "none" && d3.selectAll("input[name='circle']:checked").property("value") == "block" ? "#fff" : "#000")
       .style("display", d3.selectAll("input[name='text']:checked").property("value"))
 
@@ -263,10 +293,10 @@ function draw(dimension_selector, transition){
       .text(d => d.note)
       .attr("x", d => d.x)
       .attr("y", d => d.y)
-      .attr("dy", d => scale_size_3d(d[size_data_value]) / 4)
-      .style("font-size", d => scale_size_3d(d[size_data_value]) + "px")
+      .attr("dy", d => rescale * scale_size(d[size_data_value]) / 4)
+      .style("font-size", d => rescale * scale_size(d[size_data_value]) + "px")
       .style("fill", color_data_value == "none" && d3.selectAll("input[name='circle']:checked").property("value") == "block" ? "#fff" : "#000")
-      .style("display", d3.selectAll("input[name='text']:checked").property("value"))
+      .style("display", d3.selectAll("input[name='text']:checked").property("value"));
 }
 
 // handle events
@@ -282,7 +312,7 @@ function draw(dimension_selector, transition){
 // reset the 4d
 d3.select("#reset-4d").on("click", () => {
   dimension_options.on.data = [];
-  draw("on");
+  draw("on", true);
 });
 
 // update chart on 3d/4d selection
