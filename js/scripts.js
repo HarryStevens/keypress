@@ -1,5 +1,3 @@
-// var dimension_options.on.data = [];
-
 // dropdowns
 var color_data_select = d3.select("#color-data");
 var color_data_value = color_data_select.node().value;
@@ -37,9 +35,6 @@ var context = new AudioContext()
 
 // an empty array for storing currently playing notes
 var currNotes =  [];
-
-// an array of all available notes. add notes and everything else updates
-
 
 // each note needs additional information
 dimension_options.off.data.forEach((d, i) => {
@@ -100,6 +95,9 @@ d3.select(document).on("keypress", () => {
       dimension_options.off.data[pressedNote_indx].duration = elapsed;
       dimension_options.on.data[copyNote.uid].duration = elapsed;
 
+      var dimension_selector = $("input[name='4d']:checked").val();
+      if (dimension_selector == "on") draw(dimension_selector);
+
     });
 
     // create an oscillator and gain, and start the oscillator
@@ -147,52 +145,8 @@ d3.select(document).on("keypress", () => {
 // this is always running, and drawing depending on the current data
 d3.timer(() => {
 
-  update();
-
-  // are we drawing 3d or 4d data?
-  var dimension_selector = document.querySelector("input[name='4d']:checked").value;
-  var draw_data = dimension_options[dimension_selector].data;
-  var draw_property = dimension_options[dimension_selector].property;
-
-  var simulation = d3.forceSimulation(draw_data) 
-    .force("y", d3.forceY(height / 2))
-    .force("x", d3.forceX(d => scale_x_3d(d[x_data_value])).strength(1))
-    .stop();
-
-  if (dimension_selector == "on") simulation.force("collide", d3.forceCollide(d => scale_size_3d(d[size_data_value])));
-
-  for (var i = 0; i < 100; i++) simulation.tick(); // get some position
-
-  var circle = svg_3d.selectAll("circle")
-      .data(draw_data, d => d[draw_property]);
-
-  var text = svg_3d.selectAll("text")
-      .data(draw_data, d => d[draw_property]);
-
-  circle.exit().remove();
-
-  circle.enter().append("circle")
-      .attr("class", d => "circle circle-" + d.uid)
-    .merge(circle)
-      .attr("cy", d => d.y)
-      .attr("cx", d => d.x)
-      .attr("r", d => scale_size_3d(d[size_data_value]))
-      .style("fill", d => scale_color(d[color_data_value]))
-      .style("fill-opacity", d => d.duration == 0 ? 0 : 1);
-
-  text.exit().remove();
-
-  text.enter().append("text")
-      .attr("class", d => "text text-" + d.uid)
-      .style("text-anchor", "middle")
-      .text(d => d.note)
-    .merge(text)
-      .attr("x", d => d.x)
-      .attr("y", d => d.y)
-      .attr("dy", d => scale_size_3d(d[size_data_value]) / 4)
-      .style("font-size", d => scale_size_3d(d[size_data_value]))
-      .style("opacity", d => d.duration == 0 ? 0 : 1)
-      .style("fill", color_data_value == "none" && document.querySelector("input[name='circle']:checked").value == "block" ? "#fff" : "#000");
+  var dimension_selector = $("input[name='4d']:checked").val();
+  if (dimension_selector == "off") draw(dimension_selector);
 
 });
 
@@ -216,11 +170,13 @@ d3.select(window).on("resize", () => {
     .attr("y1", height / 2)
     .attr("x2", scale_x_3d(dimension_options.off.data[dimension_options.off.data.length - 1][x_data_value]))
     .attr("y2", height / 2);
+
+  draw($("input[name='4d']").val())
 });
 
 function getSizeDomain(size_data_value){
   return size_data_value == "duration" ? [0, 1200] :
-    size_data_value == "frequency" ? [dimension_options.off.data[0].frequency - 100, dimension_options.off.data[dimension_options.off.data.length - 1].frequency * 8] : 
+    size_data_value == "frequency" ? [dimension_options.off.data[0].frequency - 100, dimension_options.off.data[dimension_options.off.data.length - 1].frequency * 3] : 
     [1, 12];
 }
 
@@ -232,7 +188,7 @@ function getColorDomain(color_data_value){
 
 function getXDomain(x_data_value){
   return x_data_value == "indx" ? d3.extent(dimension_options.off.data, d => d[x_data_value]) :
-    x_data_value == "duration" ? [0, 1200] :
+    x_data_value == "duration" ? [0, 1000] :
     [1, 3];
 }
 
@@ -249,7 +205,9 @@ d3.select(".dropdown-wrapper").on("mouseover", () => {
   d3.select(".dropdown-wrapper").style("opacity", 0);
 });
 
-function update(){
+
+function draw(dimension_selector, transition){
+
   // dimensions
   width = window.innerWidth, height = window.innerHeight;
 
@@ -266,7 +224,79 @@ function update(){
   scale_color.domain(getColorDomain(color_data_value));
   scale_x_3d.domain(getXDomain(x_data_value));
   scale_size_3d.domain(getSizeDomain(size_data_value));
+
+  var draw_data = dimension_options[dimension_selector].data;
+  var draw_property = dimension_options[dimension_selector].property;
+
+  var simulation = d3.forceSimulation(draw_data) 
+    .force("y", d3.forceY(height / 2))
+    .force("x", d3.forceX(d => scale_x_3d(d[x_data_value])).strength(1))
+    .stop();
+
+  if (dimension_selector == "on") simulation.force("collide", d3.forceCollide(d => scale_size_3d(d[size_data_value])));
+
+  for (var i = 0; i < 200; i++) simulation.tick(); // get some position  
+
+  circle = svg_3d.selectAll("circle")
+      .data(draw_data, d => d[draw_property]);
+
+  circle.exit().remove();
+
+  circle.transition().duration(transition ? 750 : 0)
+      .attr("cy", d => d.y)
+      .attr("cx", d => d.x)
+      .attr("r", d => scale_size_3d(d[size_data_value]))
+      .style("fill", d => scale_color(d[color_data_value]));
+
+  circle.enter().append("circle")
+      .attr("class", d => "circle circle-" + d.id)
+      .attr("cy", d => d.y)
+      .attr("cx", d => d.x)
+      .attr("r", d => scale_size_3d(d[size_data_value]))
+      .style("fill", d => scale_color(d[color_data_value]));
+
+  var text = svg_3d.selectAll("text")
+      .data(draw_data, d => d[draw_property]);
+
+  text.exit().transition()
+      .remove();
+
+  text.transition().duration(transition ? 750 : 0)
+      .attr("x", d => d.x)
+      .attr("y", d => d.y)
+      .attr("dy", d => scale_size_3d(d[size_data_value]) / 4)
+      .style("font-size", d => scale_size_3d(d[size_data_value]) + "px")
+      .style("fill", color_data_value == "none" && $("input[name='circle']:checked").val() == "block" ? "#fff" : "#000");
+
+  text.enter().append("text")
+      .attr("class", d => "text text-" + d.id)
+      .style("text-anchor", "middle")
+      .text(d => d.note)
+      .attr("x", d => d.x)
+      .attr("y", d => d.y)
+      .attr("dy", d => scale_size_3d(d[size_data_value]) / 4)
+      .style("font-size", d => scale_size_3d(d[size_data_value]) + "px")
+      .style("fill", color_data_value == "none" && $("input[name='circle']:checked").val() == "block" ? "#fff" : "#000");
 }
+
+// handle events
+
+// reset the 4d
+$("#reset-4d").click(() => {
+  dimension_options.on.data = [];
+  draw("on");
+});
+
+$("input[name='4d']").change(() => {
+  updateIf4dIsOn();
+});
+
+function updateIf4dIsOn(){
+  if ($("input[name='4d']").val() == "on") {
+    draw("on", true); // the second parameter is to have a transition
+  }
+}
+
 
 
 /* kuch kuch hota hai

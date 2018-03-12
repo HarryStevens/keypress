@@ -9,11 +9,24 @@ body {
 .circle {
 	stroke: #fff;
 }
+
+
 .dropdown-wrapper {
 	position: absolute;
 	background: rgba(255, 255, 255, .8);
 	opacity: 0;
 	transition: opacity .3s;
+	width: 100%;
+}
+.dropdown-section {
+	width: 50%;
+}
+.dropdown-section.dropdown-left {
+	float: left;
+}
+.dropdown-section.dropdown-right {
+	text-align: right;
+	float: right;
 }
 .dropdown-container {
 	display: inline-block;
