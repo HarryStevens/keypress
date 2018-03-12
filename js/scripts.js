@@ -100,8 +100,8 @@ d3.select(document).on("keypress", () => {
       dimension_options.off.data[pressedNote_indx].duration = elapsed;
       dimension_options.on.data[copyNote.uid].duration = elapsed;
 
-      var dimension_selector = d3.selectAll("input[name='4d']:checked").property("value");
-      if (dimension_selector == "on") draw(dimension_selector);
+      var dimension_selector = get4dChecked();
+      if (dimension_selector == "on") drawBarsOrCircles(dimension_selector);
 
     });
 
@@ -150,7 +150,7 @@ d3.select(document).on("keypress", () => {
 // this is always running, and drawing depending on the current data
 d3.timer(() => {
 
-  var dimension_selector = d3.selectAll("input[name='4d']:checked").property("value");
+  var dimension_selector = get4dChecked();
   if (dimension_selector == "off") draw(dimension_selector);
 
 });
@@ -177,7 +177,7 @@ d3.select(window).on("resize", () => {
     .attr("x2", scale_x(dimension_options.off.data[dimension_options.off.data.length - 1][x_data_value]))
     .attr("y2", height / 2);
 
-  draw(d3.selectAll("input[name='4d']").property("value"))
+  drawBarsOrCircles(get4dChecked());
 
 });
 
@@ -194,7 +194,7 @@ function getColorDomain(color_data_value){
 }
 
 function getXDomain(x_data_value){
-  var dimension_selector = d3.selectAll("input[name='4d']").property("value")
+  var dimension_selector = get4dChecked();
   return x_data_value == "indx" ? d3.extent(dimension_options.off.data, d => d[x_data_value]) :
     x_data_value == "duration" ? 
       dimension_selector == "on" ? d3.extent(dimension_options[dimension_selector].data, d => d.duration) :
@@ -202,10 +202,11 @@ function getXDomain(x_data_value){
     [1, 3];
 }
 
+// the main draw function
 function draw(dimension_selector, transition){
   if (!transition) transition = false;
 
-  console.log(dimension_selector, transition);
+  d3.select("line").transition().style("opacity", 1);
 
   // dimensions
   width = window.innerWidth, height = window.innerHeight;
@@ -251,36 +252,38 @@ function draw(dimension_selector, transition){
   for (var i = 0; i < 120; i++) simulation.tick(); // run the simulation
 
   circle = svg.selectAll(".circle")
+      .data(draw_data, d => d[draw_property]);  
+
+  text = svg.selectAll("text")
       .data(draw_data, d => d[draw_property]);
 
+  // handle the exits
   if (transition){
     circle.exit()
       .transition(750)  
         .attr("d", d => shape2path.circle({cx: d.x, cy: d.y, r: 0}))
       .remove();
+
+    text.exit()
+      .transition(transition ? 750 : 0)
+        .attr("dy", 0)
+        .style("font-size", 0)
+      .remove();
   } else {
     circle.exit().remove();
+    text.exit().remove();
   }
 
   circle.transition().duration(transition ? 750 : 0)
       .attr("d", d => shape2path.circle({cx: d.x, cy: d.y, r: rescale * scale_size(d[size_data_value])}))
       .style("fill", d => scale_color(d[color_data_value]))
-      .style("display", d3.selectAll("input[name='circle']:checked").property("value"))
+      .style("display", d => d.duration == 0 ? "none" : d3.selectAll("input[name='circle']:checked").property("value"))
 
   circle.enter().append("path")
       .attr("class", d => "circle circle-" + d.id)
       .attr("d", d => shape2path.circle({cx: d.x, cy: d.y, r: rescale * scale_size(d[size_data_value])}))
       .style("fill", d => scale_color(d[color_data_value]))
-      .style("display", d3.selectAll("input[name='circle']:checked").property("value"))
-
-  var text = svg.selectAll("text")
-      .data(draw_data, d => d[draw_property]);
-
-  text.exit()
-    .transition(transition ? 750 : 0)
-      .attr("dy", 0)
-      .style("font-size", 0)
-    .remove();
+      .style("display", d => d.duration == 0 ? "none" : d3.selectAll("input[name='circle']:checked").property("value"))
 
   text.transition().duration(transition ? 750 : 0)
       .attr("x", d => d.x)
@@ -288,7 +291,7 @@ function draw(dimension_selector, transition){
       .attr("dy", d => rescale * scale_size(d[size_data_value]) / 4)
       .style("font-size", d => rescale * scale_size(d[size_data_value]) + "px")
       .style("fill", color_data_value == "none" && d3.selectAll("input[name='circle']:checked").property("value") == "block" ? "#fff" : "#000")
-      .style("display", d3.selectAll("input[name='text']:checked").property("value"))
+      .style("display", d => d.duration == 0 ? "none" : d3.selectAll("input[name='circle']:checked").property("value"))
 
   text.enter().append("text")
       .attr("class", d => "text text-" + d.id)
@@ -299,7 +302,56 @@ function draw(dimension_selector, transition){
       .attr("dy", d => rescale * scale_size(d[size_data_value]) / 4)
       .style("font-size", d => rescale * scale_size(d[size_data_value]) + "px")
       .style("fill", color_data_value == "none" && d3.selectAll("input[name='circle']:checked").property("value") == "block" ? "#fff" : "#000")
-      .style("display", d3.selectAll("input[name='text']:checked").property("value"));
+      .style("display", d => d.duration == 0 ? "none" : d3.selectAll("input[name='circle']:checked").property("value"))
+}
+
+function drawBars(){
+  d3.select("line").transition().style("opacity", 0)
+
+  var data = dimension_options.on.data;
+
+  var margin = {left: 200, right: 200, top: window.innerHeight / 4, bottom: window.innerHeight / 4};
+
+  var inner_width = window.innerWidth - margin.left - margin.right,
+    inner_height = window.innerHeight - margin.top - margin.bottom;
+
+  var ids = dimension_options.off.data.map(d => d.id);
+
+  var bar_x = d3.scaleBand()
+      .rangeRound([margin.left, window.innerWidth - margin.right])
+      .domain(ids)
+      .padding(.5);
+
+  var out = [];
+  ids.forEach(id => {
+    var matches = data.filter(d => d.id == id);
+
+    matches.forEach((d, i) => {
+      d.notes_count = matches.length;
+      d.note_index = i + 1;
+      out.push(d);
+    });
+
+  });
+
+  var max_notes = d3.max(out, d => d.notes_count);
+
+  var bar_y = d3.scaleLinear()
+      .range([window.innerHeight - margin.top, margin.bottom])
+      .domain([0, max_notes]);
+
+  circle = svg.selectAll(".circle")
+      .data(out, d => d.uid)
+
+  circle.transition()
+      .attr("d", d => shape2path.rect({x: bar_x(d.id), y: bar_y(d.note_index), width: bar_x.bandwidth(), height: inner_height / max_notes}));
+  
+  circle.enter().append("path")
+      .attr("class", d => "circle circle-" + d.id)
+      .attr("d", d => shape2path.rect({x: bar_x(d.id), y: bar_y(d.note_index), width: bar_x.bandwidth(), height: inner_height / max_notes}))
+      .style("fill", d => scale_color(d[color_data_value]))
+      .style("display", d3.selectAll("input[name='circle']:checked").property("value"))
+
 }
 
 // handle events
@@ -315,20 +367,47 @@ function draw(dimension_selector, transition){
 // reset the 4d
 d3.select("#reset-4d").on("click", () => {
   dimension_options.on.data = [];
-  draw("on", true);
+  drawBarsOrCircles("on", true);
 });
 
 // update chart on 3d/4d selection
 d3.selectAll("input[name='4d']").on("change", () => {
-  updateOnChange(d3.selectAll("input[name='4d']").property("value") == "on");
+  enableOrDisableBars();
+  updateOnChange(get4dChecked() == "on");
 });
 // update the chart on select change
 d3.selectAll("select").on("change", () => {
-  updateOnChange(d3.selectAll("input[name='4d']").property("value") == "on");
+  updateOnChange(get4dChecked() == "on");
 });
 
 function updateOnChange(transition){
-  draw(d3.select("input[name='4d']:checked").property("value"), transition);
+  drawBarsOrCircles(get4dChecked(), transition);
+}
+
+// draw bars or not
+d3.selectAll("input[name='bars']").on("change", () => {
+  drawBarsOrCircles("on", true);
+});
+
+// call them right away
+drawBarsOrCircles("on", true);
+enableOrDisableBars();
+
+// bar enable or disable
+function enableOrDisableBars(){
+  d3.selectAll("input[name='bars']").property("disabled", get4dChecked() == "off");
+  d3.select(".dropdown-container.bars").classed("disabled", get4dChecked() == "off")
+}
+function drawBarsOrCircles(selector, transition){
+  if (d3.select("input[name='bars']:checked").property("value") == "on"){
+    drawBars();
+  } else {
+    draw(selector, transition);
+  }
+}
+
+function get4dChecked(){
+  return d3.select("input[name='4d']:checked").property("value");
 }
 
 // show or hide the controls
