@@ -192,6 +192,7 @@ function getXDomain(x_data_value){
 // bars - string - "on" or "off"
 // shape_transition - string - "none", "toBars", "toCircles"
 function draw(options){
+  console.log(options);
   
   // this is the center line, which is needed for drawing circles but not rects
   d3.select("line").transition().duration(options.transition).style("opacity", options.bars === "on" ? 0 : 1);
@@ -318,11 +319,15 @@ function draw(options){
   
   } else if (options.shape_transition == "toCircles"){
 
-    circle.transition().duration(options.transition)
-        .attrTween("d", d => {
-          console.log(rect_path(d));
-          return flubber.interpolate( rect_path(d), flubber.splitPathString( circle_path(d) )[1] )
-        })
+    // this extra transition is necessary to fix a bug
+    // https://github.com/HarryStevens/keypress/issues/13
+    circle
+      .transition()
+      .duration(options.transition)
+        .attrTween("d", d => flubber.interpolate( rect_path(d), flubber.splitPathString( circle_path(d) )[1]))
+      .transition()
+      .duration(0)
+        .attr("d", d => circle_path(d));
         
   }
   
@@ -385,6 +390,7 @@ d3.selectAll("select").on("change", () => {
 // draw bars or not
 var last_size_value,
   last_x_value;
+
 d3.selectAll("input[name='bars']").on("change", () => {
   
   var bars_position = getBarsChecked();
@@ -400,7 +406,7 @@ d3.selectAll("input[name='bars']").on("change", () => {
   if (bars_position == "on"){
 
     // first draw it
-    draw({show_all: get4dChecked(), transition: 750, bars: getBarsChecked(), shape_transition: "toBars"});
+    draw({show_all: get4dChecked(), transition: 1500, bars: getBarsChecked(), shape_transition: "toBars"});
     
     // store current
     last_size_value = size_data_select.node().value;
@@ -417,7 +423,7 @@ d3.selectAll("input[name='bars']").on("change", () => {
     x_data_select.property("value", last_x_value);
 
     // draw it afterwards
-    draw({show_all: get4dChecked(), transition: 750, bars: getBarsChecked(), shape_transition: "toCircles"});
+    draw({show_all: get4dChecked(), transition: 1500, bars: getBarsChecked(), shape_transition: "toCircles"});
   }
 
 
