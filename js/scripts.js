@@ -77,6 +77,7 @@ var line = svg.append("line")
   .attr("y2", height / 2)
   .style("stroke", "#ccc");
 
+// THIS PART UPDATES THE DATA BASED ON KEY PRESSING
 d3.select(document).on("keypress", () => {
 
   var pressedNote = getPressedNote(d3.event.key);
@@ -101,7 +102,7 @@ d3.select(document).on("keypress", () => {
       dimension_options.on.data[copyNote.uid].duration = elapsed;
 
       var dimension_selector = get4dChecked();
-      if (dimension_selector == "on") drawBarsOrCircles(dimension_selector);
+      if (dimension_selector == "on") draw({show_all: dimension_selector, transition: 0});
 
     });
 
@@ -147,40 +148,21 @@ d3.select(document).on("keypress", () => {
   
 });
 
-// this is always running, and drawing depending on the current data
-d3.timer(() => {
-
-  var dimension_selector = get4dChecked();
-  if (dimension_selector == "off") draw(dimension_selector);
-
-});
-
+// A HELPER FUNCTION TO LOOK UP THE NOTE BASED ON THE KEY PRESSED
 function getPressedNote(key){
   var pressedNote = dimension_options.off.data.filter(d => d.keyboard == key);
   return pressedNote.length == 0 ? defaultNote : pressedNote[0];
 }
 
-// resize
-d3.select(window).on("resize", () => {
-    
-  // dimensions
-  width = window.innerWidth, height = window.innerHeight;
-  svg.attr("width", width).attr("height", height);
-  
-  // scales
-  scale_x.range([200, width - 200]).domain(getXDomain(x_data_value));
-  scale_size.range([0, size_range_max]);
-  
-  line
-    .attr("x1", scale_x(dimension_options.off.data[0][x_data_value]))
-    .attr("y1", height / 2)
-    .attr("x2", scale_x(dimension_options.off.data[dimension_options.off.data.length - 1][x_data_value]))
-    .attr("y2", height / 2);
+// this is always running, and drawing depending on the current data
+// IT ONLY DRAWS IF 4D MODE IS OFF
+d3.timer(() => {
 
-  drawBarsOrCircles(get4dChecked());
+  if (get4dChecked() == "off") draw({show_all: "off", transition: 0});
 
 });
 
+// FUNCTIONS TO GET THE DOMAIN BASED ON DROPDOWN SELECTIONS
 function getSizeDomain(size_data_value){
   return size_data_value == "duration" ? [0, 1200] :
     size_data_value == "frequency" ? [dimension_options.off.data[0].frequency - 100, dimension_options.off.data[dimension_options.off.data.length - 1].frequency * 3] : 
@@ -203,9 +185,13 @@ function getXDomain(x_data_value){
 }
 
 // the main draw function
-function draw(dimension_selector, transition){
-  if (!transition) transition = false;
+// options:
+// show_all - string - "on" or "off"
+// transition - number - how long should the transition be?
+// shape - string - "circle" or "rect"
 
+function draw(options){
+  
   d3.select("line").transition().style("opacity", 1);
 
   // dimensions
@@ -225,8 +211,8 @@ function draw(dimension_selector, transition){
   scale_x.domain(getXDomain(x_data_value));
   scale_size.domain(getSizeDomain(size_data_value));
 
-  var draw_data = dimension_options[dimension_selector].data;
-  var draw_property = dimension_options[dimension_selector].property;
+  var draw_data = dimension_options[options.show_all].data;
+  var draw_property = dimension_options[options.show_all].property;
 
   var simulation = d3.forceSimulation(draw_data) 
     .force("y", d3.forceY(height / 2))
@@ -238,7 +224,7 @@ function draw(dimension_selector, transition){
   // do some things differently in 4d mode
   var rescale = 1;
   var rescale_coefficient = 6;
-  if (dimension_selector == "on") {
+  if (options.show_all == "on") {
 
     // figure out if we need to make things smaller
     var biggest_over = d3.max(draw_data, d => rescale_coefficient * scale_size(d[size_data_value]) - d.y);
@@ -258,14 +244,14 @@ function draw(dimension_selector, transition){
       .data(draw_data, d => d[draw_property]);
 
   // handle the exits
-  if (transition){
+  if (options.transition !== 0){
     circle.exit()
-      .transition(750)  
+      .transition(options.transition)  
         .attr("d", d => shape2path.circle({cx: d.x, cy: d.y, r: 0}))
       .remove();
 
     text.exit()
-      .transition(transition ? 750 : 0)
+      .transition(options.transition)
         .attr("dy", 0)
         .style("font-size", 0)
       .remove();
@@ -274,7 +260,7 @@ function draw(dimension_selector, transition){
     text.exit().remove();
   }
 
-  circle.transition().duration(transition ? 750 : 0)
+  circle.transition().duration(options.transition)
       .attr("d", d => shape2path.circle({cx: d.x, cy: d.y, r: rescale * scale_size(d[size_data_value])}))
       .style("fill", d => scale_color(d[color_data_value]))
       .style("display", d => d.duration == 0 ? "none" : d3.selectAll("input[name='circle']:checked").property("value"))
@@ -285,13 +271,13 @@ function draw(dimension_selector, transition){
       .style("fill", d => scale_color(d[color_data_value]))
       .style("display", d => d.duration == 0 ? "none" : d3.selectAll("input[name='circle']:checked").property("value"))
 
-  text.transition().duration(transition ? 750 : 0)
+  text.transition().duration(options.transition)
       .attr("x", d => d.x)
       .attr("y", d => d.y)
       .attr("dy", d => rescale * scale_size(d[size_data_value]) / 4)
       .style("font-size", d => rescale * scale_size(d[size_data_value]) + "px")
-      .style("fill", color_data_value == "none" && d3.selectAll("input[name='circle']:checked").property("value") == "block" ? "#fff" : "#000")
-      .style("display", d => d.duration == 0 ? "none" : d3.selectAll("input[name='circle']:checked").property("value"))
+      .style("fill", color_data_value == "none" && d3.selectAll("input[name='text']:checked").property("value") == "block" ? "#fff" : "#000")
+      .style("display", d => d.duration == 0 ? "none" : d3.selectAll("input[name='text']:checked").property("value"))
 
   text.enter().append("text")
       .attr("class", d => "text text-" + d.id)
@@ -301,58 +287,11 @@ function draw(dimension_selector, transition){
       .attr("y", d => d.y)
       .attr("dy", d => rescale * scale_size(d[size_data_value]) / 4)
       .style("font-size", d => rescale * scale_size(d[size_data_value]) + "px")
-      .style("fill", color_data_value == "none" && d3.selectAll("input[name='circle']:checked").property("value") == "block" ? "#fff" : "#000")
-      .style("display", d => d.duration == 0 ? "none" : d3.selectAll("input[name='circle']:checked").property("value"))
+      .style("fill", color_data_value == "none" && d3.selectAll("input[name='text']:checked").property("value") == "block" ? "#fff" : "#000")
+      .style("display", d => d.duration == 0 ? "none" : d3.selectAll("input[name='text']:checked").property("value"))
 }
 
-function drawBars(){
-  d3.select("line").transition().style("opacity", 0)
 
-  var data = dimension_options.on.data;
-
-  var margin = {left: 200, right: 200, top: window.innerHeight / 4, bottom: window.innerHeight / 4};
-
-  var inner_width = window.innerWidth - margin.left - margin.right,
-    inner_height = window.innerHeight - margin.top - margin.bottom;
-
-  var ids = dimension_options.off.data.map(d => d.id);
-
-  var bar_x = d3.scaleBand()
-      .rangeRound([margin.left, window.innerWidth - margin.right])
-      .domain(ids)
-      .padding(.5);
-
-  var out = [];
-  ids.forEach(id => {
-    var matches = data.filter(d => d.id == id);
-
-    matches.forEach((d, i) => {
-      d.notes_count = matches.length;
-      d.note_index = i + 1;
-      out.push(d);
-    });
-
-  });
-
-  var max_notes = d3.max(out, d => d.notes_count);
-
-  var bar_y = d3.scaleLinear()
-      .range([window.innerHeight - margin.top, margin.bottom])
-      .domain([0, max_notes]);
-
-  circle = svg.selectAll(".circle")
-      .data(out, d => d.uid)
-
-  circle.transition()
-      .attr("d", d => shape2path.rect({x: bar_x(d.id), y: bar_y(d.note_index), width: bar_x.bandwidth(), height: inner_height / max_notes}));
-  
-  circle.enter().append("path")
-      .attr("class", d => "circle circle-" + d.id)
-      .attr("d", d => shape2path.rect({x: bar_x(d.id), y: bar_y(d.note_index), width: bar_x.bandwidth(), height: inner_height / max_notes}))
-      .style("fill", d => scale_color(d[color_data_value]))
-      .style("display", d3.selectAll("input[name='circle']:checked").property("value"))
-
-}
 
 // handle events
 
@@ -367,43 +306,34 @@ function drawBars(){
 // reset the 4d
 d3.select("#reset-4d").on("click", () => {
   dimension_options.on.data = [];
-  drawBarsOrCircles("on", true);
+  draw({show_all: get4dChecked(), transition: 750})
 });
 
 // update chart on 3d/4d selection
 d3.selectAll("input[name='4d']").on("change", () => {
   enableOrDisableBars();
-  updateOnChange(get4dChecked() == "on");
+  draw({show_all: get4dChecked(), transition: 0});
 });
 // update the chart on select change
 d3.selectAll("select").on("change", () => {
-  updateOnChange(get4dChecked() == "on");
+  var selector = get4dChecked();
+  draw({show_all: selector, transition: selector == "on" ? 750 : 0});
 });
 
-function updateOnChange(transition){
-  drawBarsOrCircles(get4dChecked(), transition);
-}
 
 // draw bars or not
 d3.selectAll("input[name='bars']").on("change", () => {
-  drawBarsOrCircles("on", true);
+  
 });
 
 // call them right away
-drawBarsOrCircles("on", true);
 enableOrDisableBars();
 
-// bar enable or disable
+// HELPER FUNCTIONS
+
 function enableOrDisableBars(){
   d3.selectAll("input[name='bars']").property("disabled", get4dChecked() == "off");
   d3.select(".dropdown-container.bars").classed("disabled", get4dChecked() == "off")
-}
-function drawBarsOrCircles(selector, transition){
-  if (d3.select("input[name='bars']:checked").property("value") == "on"){
-    drawBars();
-  } else {
-    draw(selector, transition);
-  }
 }
 
 function get4dChecked(){
@@ -415,4 +345,25 @@ d3.select(".dropdown-wrapper").on("mouseover", () => {
   d3.select(".dropdown-wrapper").style("opacity", 1);
 }).on("mouseout", () => {
   d3.select(".dropdown-wrapper").style("opacity", 0);
+});
+
+// WHAT TO DO ON RESIZE
+d3.select(window).on("resize", () => {
+    
+  // dimensions
+  width = window.innerWidth, height = window.innerHeight;
+  svg.attr("width", width).attr("height", height);
+  
+  // scales
+  scale_x.range([200, width - 200]).domain(getXDomain(x_data_value));
+  scale_size.range([0, size_range_max]);
+  
+  line
+    .attr("x1", scale_x(dimension_options.off.data[0][x_data_value]))
+    .attr("y1", height / 2)
+    .attr("x2", scale_x(dimension_options.off.data[dimension_options.off.data.length - 1][x_data_value]))
+    .attr("y2", height / 2);
+
+  draw({show_all: get4dChecked(), transition: 0});
+
 });

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+</head>
+<body>
+<svg width="500" height="500"></svg>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://unpkg.com/flubber@0.4.2/build/flubber.min.js"></script>
+<script>
+var stringA = "M200,234.30134322665563 m-29.49500000322587,0 a29.49500000322587,29.49500000322587 0 1,0 58.99000000645174,0 a29.49500000322587,29.49500000322587 0 1,0 -58.99000000645174,0 Z"
+var stringB = "M263,297.5 H324 V382.5 H263 Z";
+
+var svg = d3.select("svg");
+
+var path = svg.append("path")
+  .attr("d", stringA)
+
+path.transition()
+  .delay(1000)
+  .attrTween("d", () => {
+  	var interpolator = flubber.interpolate(flubber.splitPathString(stringA)[1], stringB);
+    return function(t){
+      console.log("Transition is " + (100 * t) + "% complete");
+      return interpolator(t);
+    }
+  });
+</script>
