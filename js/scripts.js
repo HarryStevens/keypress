@@ -81,6 +81,7 @@ var line = svg.append("line")
 d3.select(document).on("keypress", () => {
 
   var pressedNote = getPressedNote(d3.event.key);
+  console.log(pressedNote);
   var pressedNote_indx = dimension_options.off.data.indexOf(pressedNote);
 
   // if the note being played is not in the currNotes array
@@ -102,7 +103,7 @@ d3.select(document).on("keypress", () => {
       dimension_options.on.data[copyNote.uid].duration = elapsed;
 
       var dimension_selector = get4dChecked();
-      if (dimension_selector == "on") draw({show_all: dimension_selector, transition: 0});
+      if (dimension_selector == "on") draw({show_all: dimension_selector, transition: 0, bars: getBarsChecked(), shape_transition: "none"});
 
     });
 
@@ -158,7 +159,7 @@ function getPressedNote(key){
 // IT ONLY DRAWS IF 4D MODE IS OFF
 d3.timer(() => {
 
-  if (get4dChecked() == "off") draw({show_all: "off", transition: 0});
+  if (get4dChecked() == "off") draw({show_all: "off", transition: 0, bars: "off", shape_transition: "none"});
 
 });
 
@@ -184,15 +185,16 @@ function getXDomain(x_data_value){
     [1, 3];
 }
 
-// the main draw function
+// THE MAIN DRAW FUNCTION
 // options:
 // show_all - string - "on" or "off"
 // transition - number - how long should the transition be?
-// shape - string - "circle" or "rect"
-
+// bars - string - "on" or "off"
+// shape_transition - string - "none", "toBars", "toCircles"
 function draw(options){
   
-  d3.select("line").transition().style("opacity", 1);
+  // this is the center line, which is needed for drawing circles but not rects
+  d3.select("line").transition().duration(options.transition).style("opacity", options.bars === "on" ? 0 : 1);
 
   // dimensions
   width = window.innerWidth, height = window.innerHeight;
@@ -237,8 +239,44 @@ function draw(options){
 
   for (var i = 0; i < 120; i++) simulation.tick(); // run the simulation
 
+  // THE BARS CALCULATIONS
+  var margin, inner_width, inner_height, ids, bar_x, out = [], max_notes, bar_y;
+
+  // only do them if the bars is on
+  if (options.bars == "on"|| options.shape_transition !== "none"){
+    margin = {left: 200, right: 200, top: window.innerHeight / 4, bottom: window.innerHeight / 4};
+
+    inner_width = window.innerWidth - margin.left - margin.right,
+      inner_height = window.innerHeight - margin.top - margin.bottom;
+
+    ids = dimension_options.off.data.map(d => d.id);
+
+    bar_x = d3.scaleBand()
+        .rangeRound([margin.left, window.innerWidth - margin.right])
+        .domain(ids)
+        .padding(.5);
+
+    out = [];
+    ids.forEach(id => {
+      var matches = draw_data.filter(d => d.id == id);
+
+      matches.forEach((d, i) => {
+        d.notes_count = matches.length;
+        d.note_index = i + 1;
+        out.push(d);
+      });
+
+    });
+
+    max_notes = d3.max(out, d => d.notes_count);
+
+    bar_y = d3.scaleLinear()
+        .range([window.innerHeight - margin.top, margin.bottom])
+        .domain([0, max_notes]);
+  }
+
   circle = svg.selectAll(".circle")
-      .data(draw_data, d => d[draw_property]);  
+      .data(options.bars == "on" ? out : draw_data, d => d[draw_property]);  
 
   text = svg.selectAll("text")
       .data(draw_data, d => d[draw_property]);
@@ -260,14 +298,37 @@ function draw(options){
     text.exit().remove();
   }
 
-  circle.transition().duration(options.transition)
-      .attr("d", d => shape2path.circle({cx: d.x, cy: d.y, r: rescale * scale_size(d[size_data_value])}))
-      .style("fill", d => scale_color(d[color_data_value]))
-      .style("display", d => d.duration == 0 ? "none" : d3.selectAll("input[name='circle']:checked").property("value"))
+  // the circle or rect paths
+  var circle_path = d => shape2path.circle({cx: d.x, cy: d.y, r: rescale * scale_size(d[size_data_value])});
+  var rect_path = () => {};
+  if (options.bars == "on" || options.shape_transition !== "none") rect_path = d => shape2path.rect({x: bar_x(d.id), y: bar_y(d.note_index), width: bar_x.bandwidth(), height: inner_height / max_notes});
 
+  // shape transitions
+  if (options.shape_transition == "none") {
+    circle.transition().duration(options.transition)
+        .attr("d", d => options.bars == "on" ? rect_path(d) : circle_path(d))
+        .style("fill", d => scale_color(d[color_data_value]))
+        .style("display", d => d.duration == 0 ? "none" : d3.selectAll("input[name='circle']:checked").property("value"));
+  
+  }
+  else if (options.shape_transition == "toBars"){
+
+    circle.transition().duration(options.transition)
+        .attrTween("d", d => flubber.interpolate( flubber.splitPathString( circle_path(d) )[1], rect_path(d) ));
+  
+  } else if (options.shape_transition == "toCircles"){
+
+    circle.transition().duration(options.transition)
+        .attrTween("d", d => {
+          console.log(rect_path(d));
+          return flubber.interpolate( rect_path(d), flubber.splitPathString( circle_path(d) )[1] )
+        })
+        
+  }
+  
   circle.enter().append("path")
       .attr("class", d => "circle circle-" + d.id)
-      .attr("d", d => shape2path.circle({cx: d.x, cy: d.y, r: rescale * scale_size(d[size_data_value])}))
+      .attr("d", d => options.bars == "on" ? rect_path(d) : circle_path(d))
       .style("fill", d => scale_color(d[color_data_value]))
       .style("display", d => d.duration == 0 ? "none" : d3.selectAll("input[name='circle']:checked").property("value"))
 
@@ -306,38 +367,107 @@ function draw(options){
 // reset the 4d
 d3.select("#reset-4d").on("click", () => {
   dimension_options.on.data = [];
-  draw({show_all: get4dChecked(), transition: 750})
+  draw({show_all: get4dChecked(), transition: 750, bars: getBarsChecked(), shape_transition: "none"})
 });
 
 // update chart on 3d/4d selection
 d3.selectAll("input[name='4d']").on("change", () => {
   enableOrDisableBars();
-  draw({show_all: get4dChecked(), transition: 0});
+  draw({show_all: get4dChecked(), transition: 0, bars: getBarsChecked(), shape_transition: "none"});
 });
 // update the chart on select change
 d3.selectAll("select").on("change", () => {
   var selector = get4dChecked();
-  draw({show_all: selector, transition: selector == "on" ? 750 : 0});
+  draw({show_all: selector, transition: selector == "on" ? 750 : 0, bars: getBarsChecked(), shape_transition: "none"});
 });
 
 
 // draw bars or not
+var last_size_value,
+  last_x_value;
 d3.selectAll("input[name='bars']").on("change", () => {
   
+  var bars_position = getBarsChecked();
+
+  // disable or enable controls depending upon whether bars is on or off
+  d3.selectAll(".dropdown-container.bar-dependent select").property("disabled", bars_position == "on");
+  d3.selectAll(".dropdown-container.bar-dependent input").property("disabled", bars_position == "on");
+  d3.selectAll(".dropdown-container.bar-dependent").classed("disabled", bars_position == "on");
+
+
+  // THIS CONDITIONAL NEEDS TO RUN AFTER THE DRAW FUNCTION!
+  // if bars_position is on, set size to none (middle) and horizontal position to pitch (indx)
+  if (bars_position == "on"){
+
+    // first draw it
+    draw({show_all: get4dChecked(), transition: 750, bars: getBarsChecked(), shape_transition: "toBars"});
+    
+    // store current
+    last_size_value = size_data_select.node().value;
+    last_x_value = x_data_select.node().value;
+
+    // set
+    size_data_select.property("value", "middle");
+    x_data_select.property("value", "indx");  
+  }
+
+  // otherwise, set size and horizontal position to what they were previously
+  else {
+    size_data_select.property("value", last_size_value);
+    x_data_select.property("value", last_x_value);
+
+    // draw it afterwards
+    draw({show_all: get4dChecked(), transition: 750, bars: getBarsChecked(), shape_transition: "toCircles"});
+  }
+
+
+
 });
 
 // call them right away
 enableOrDisableBars();
 
-// HELPER FUNCTIONS
+// Decide whether to make the bars radio buttons clickable
+var lastBarsSelection = getBarsChecked();
 
 function enableOrDisableBars(){
-  d3.selectAll("input[name='bars']").property("disabled", get4dChecked() == "off");
-  d3.select(".dropdown-container.bars").classed("disabled", get4dChecked() == "off")
+  var selector = get4dChecked();
+  d3.selectAll("input[name='bars']").property("disabled", selector == "off");
+  d3.select(".dropdown-container.bars").classed("disabled", selector == "off");
+
+  // if 4d is off, bars always needs to be set to off. it only works in 4d mode.
+  if (selector == "off") {
+    lastBarsSelection = d3.select("input[name='bars']:checked").property("value");
+    d3.selectAll("input[name='bars'][value='off']").property("checked", true);
+
+    // re-enable the dropdowns
+    d3.selectAll(".dropdown-container.bar-dependent select").property("disabled", false);
+    d3.selectAll(".dropdown-container.bar-dependent input").property("disabled", false);
+    d3.selectAll(".dropdown-container.bar-dependent").classed("disabled", false);
+
+    // and the size and horizontal position need to be reset to their last position
+    size_data_select.property("value", last_size_value);
+    x_data_select.property("value", last_x_value);
+  } 
+
+  // if 4d is on, remember the last position of the bars radio, and set it to that
+  else {
+    d3.selectAll("input[name='bars'][value='" + lastBarsSelection + "']").property("checked", true);
+
+    // re-disable the dropdowns if lastBarsSelection is on
+    d3.selectAll(".dropdown-container.bar-dependent select").property("disabled", lastBarsSelection == "on");
+    d3.selectAll(".dropdown-container.bar-dependent input").property("disabled", lastBarsSelection == "on");
+    d3.selectAll(".dropdown-container.bar-dependent").classed("disabled", lastBarsSelection == "on");
+  }
+
 }
 
+// Getters for finding out whether radios are checked or not
 function get4dChecked(){
   return d3.select("input[name='4d']:checked").property("value");
+}
+function getBarsChecked(){
+  return d3.select("input[name='bars']:checked").property("value");
 }
 
 // show or hide the controls
@@ -364,6 +494,6 @@ d3.select(window).on("resize", () => {
     .attr("x2", scale_x(dimension_options.off.data[dimension_options.off.data.length - 1][x_data_value]))
     .attr("y2", height / 2);
 
-  draw({show_all: get4dChecked(), transition: 0});
+  draw({show_all: get4dChecked(), transition: 0, bars: getBarsChecked(), shape_transition: "none"});
 
 });
