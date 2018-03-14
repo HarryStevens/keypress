@@ -293,12 +293,14 @@ function draw(options){
     if (options.bars == "on") bar_y.domain([0, last_max_notes]) // the y domain must be based on the last max notes
 
     circle.exit()
-      .transition(options.transition)  
+      .transition()
+      .duration(options.transition)  
         .attr("d", d => options.bars == "on" ? shape2path.rect({x: bar_x(d.id) + bar_x.bandwidth() / 2, y: bar_y(d.note_index) + inner_height / last_max_notes / 2, width: 0, height: 0}) : shape2path.circle({cx: d.x, cy: d.y, r: 0}))
       .remove();
 
     text.exit()
-      .transition(options.transition)
+      .transition()
+      .duration(options.transition)
         .attr("dy", 0)
         .style("font-size", 0)
       .remove();
@@ -389,11 +391,11 @@ function draw(options){
           .style("opacity", 0)
     }
 
-    // always display axis text. Fixes bug https://github.com/HarryStevens/keypress/issues/18
-    x_axis_selector.selectAll(".tick text").style("display", "block");
-
-
   }
+
+  // always show circles if bars is on
+  d3.selectAll(".circle").style("display", getCirclesChecked());
+
 }
 
 
@@ -404,7 +406,7 @@ function draw(options){
 ["circle", "text"].forEach(element => {
   var selector = "input[name='" + element + "']";
   d3.selectAll(selector).on("change", () => {
-    d3.selectAll(element).style("display", d3.selectAll(selector + ":checked").property("value"));
+    d3.selectAll("." + element).style("display", d3.selectAll(selector + ":checked").property("value"));
   });
 });
 
@@ -428,7 +430,8 @@ d3.selectAll("select").on("change", () => {
 // draw bars or not
 var last_size_value,
   last_x_value,
-  last_text_setting;
+  last_text_setting,
+  last_circle_setting;
 
 d3.selectAll("input[name='bars']").on("change", () => {
   
@@ -444,9 +447,11 @@ d3.selectAll("input[name='bars']").on("change", () => {
   // if bars_position is on, set size to none (middle) and horizontal position to pitch (indx)
   if (bars_position == "on"){
 
-    // store current text and set it to off
+    // store current text/circles and set it to off
     last_text_setting = getTextChecked();
+    last_circle_setting = getCirclesChecked();
     d3.selectAll("input[name='text'][value='none']").property("checked", true);
+    d3.selectAll("input[name='circle'][value='block']").property("checked", true);
 
     // first draw it
     draw({show_all: get4dChecked(), transition: 1500, bars: getBarsChecked(), shape_transition: "toBars"});
@@ -466,6 +471,7 @@ d3.selectAll("input[name='bars']").on("change", () => {
     size_data_select.property("value", last_size_value);
     x_data_select.property("value", last_x_value);
     d3.selectAll("input[name='text'][value='" + last_text_setting + "']").property("checked", true);
+    d3.selectAll("input[name='circle'][value='" + last_circle_setting + "']").property("checked", true);
 
     // draw it afterwards
     draw({show_all: get4dChecked(), transition: 1500, bars: getBarsChecked(), shape_transition: "toCircles"});
@@ -498,8 +504,9 @@ function enableOrDisableBars(){
     size_data_select.property("value", last_size_value);
     x_data_select.property("value", last_x_value);
 
-    // set the text
+    // set the text and cirlces
     d3.selectAll("input[name='text'][value='" + last_text_setting + "']").property("checked", true);
+    d3.selectAll("input[name='circle'][value='" + last_circle_setting + "']").property("checked", true);
   } 
 
   // if 4d is on, remember the last position of the bars radio, and set it to that
@@ -523,6 +530,9 @@ function getBarsChecked(){
 }
 function getTextChecked(){
   return d3.select("input[name='text']:checked").property("value");
+}
+function getCirclesChecked(){
+  return d3.select("input[name='circle']:checked").property("value");
 }
 
 // show or hide the controls
