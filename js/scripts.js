@@ -68,7 +68,6 @@ var scale_size = d3.scaleLinear().range([0, size_range_max]).domain([0, 1200]);
 var scale_color = d3.scaleLinear().range(["tomato", "steelblue"]).domain(d3.extent(dimension_options.off.data, d => d[color_data_value]));
 var scale_x = d3.scaleLinear().range([200, width - 200]).domain(d3.extent(dimension_options.off.data, d => d[x_data_value]));
 
-
 // draw the center line
 var line = svg.append("line")
   .attr("x1", scale_x(dimension_options.off.data[0][x_data_value]))
@@ -76,6 +75,10 @@ var line = svg.append("line")
   .attr("x2", scale_x(dimension_options.off.data[dimension_options.off.data.length - 1][x_data_value]))
   .attr("y2", height / 2)
   .style("stroke", "#ccc");
+
+// the x_axis selector
+var x_axis_selector = svg.append("g")
+  .attr("class", "axis x");
 
 // THIS PART UPDATES THE DATA BASED ON KEY PRESSING
 d3.select(document).on("keypress", () => {
@@ -242,7 +245,7 @@ function draw(options){
   for (var i = 0; i < 120; i++) simulation.tick(); // run the simulation
 
   // THE BARS CALCULATIONS
-  var margin, inner_width, inner_height, ids, bar_x, out = [], max_notes, bar_y;
+  var margin, inner_width, inner_height, ids, bar_x, out = [], max_notes, bar_y, x_axis;
 
   // only do them if the bars is on
   if (options.bars == "on" || options.shape_transition !== "none"){
@@ -281,7 +284,7 @@ function draw(options){
   circle = svg.selectAll(".circle")
       .data(options.bars == "on" ? out : draw_data, d => d[draw_property]);  
 
-  text = svg.selectAll("text")
+  text = svg.selectAll(".text")
       .data(draw_data, d => d[draw_property]);
 
   // handle the exits
@@ -362,6 +365,32 @@ function draw(options){
       .style("font-size", d => rescale * scale_size(d[size_data_value]) + "px")
       .style("fill", color_data_value == "none" && d3.selectAll("input[name='text']:checked").property("value") == "block" ? "#fff" : "#000")
       .style("display", d => d.duration == 0 ? "none" : d3.selectAll("input[name='text']:checked").property("value"))
+
+  // axis
+  if (options.bars == "on" || options.shape_transition == "toCircles") {
+
+    x_axis = d3.axisBottom(bar_x)
+      .tickFormat(d => d[0]);
+    
+    x_axis_selector
+        .attr("transform", "translate(0, " + (inner_height + margin.top) + ")")
+        .call(x_axis)
+        .moveToFront();
+
+    if (options.shape_transition == "toBars") {
+      x_axis_selector
+          .style("opacity", 0)
+        .transition().duration(options.transition)
+          .style("opacity", 1);
+    } else if (options.shape_transition == "toCircles") {
+      x_axis_selector
+          .style("opacity", 1)
+        .transition().duration(options.transition)
+          .style("opacity", 0)
+    }
+
+
+  }
 }
 
 
@@ -392,7 +421,6 @@ d3.selectAll("select").on("change", () => {
   var selector = get4dChecked();
   draw({show_all: selector, transition: selector == "on" ? 1500 : 0, bars: getBarsChecked(), shape_transition: "none"});
 });
-
 
 // draw bars or not
 var last_size_value,
@@ -432,8 +460,6 @@ d3.selectAll("input[name='bars']").on("change", () => {
     // draw it afterwards
     draw({show_all: get4dChecked(), transition: 1500, bars: getBarsChecked(), shape_transition: "toCircles"});
   }
-
-
 
 });
 

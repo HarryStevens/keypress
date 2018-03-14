@@ -50,6 +50,16 @@ body {
 	font-size: .75em;
 }
 
+.axis .domain {
+	display: none;
+}
+.axis .tick line {
+	display: none;
+}
+.axis .tick text {
+	font-size: 1.2em;
+}
+
 select:disabled, select:disabled > option {
 	color: #ccc;
 }
