@@ -1,14 +1,13 @@
 $(document).ready(() => {
 
 	// Configuration variables
-	var curr_show = 0;
+	var min_show = -1;
+	var curr_show = -1;
 	var max_arr = [];
 	$(".show").each((index, el) => {
 		max_arr.push(+$(el).attr("effect-order"));
 	});
 	var max_show = jz.arr.max(max_arr) + 1;
-
-	showToggle("ArrowDown");
 
 	// Event handler for keydown
 	$(document).keydown(e => {
@@ -19,7 +18,7 @@ $(document).ready(() => {
 			return; // do nothing
 		}
 		
-		if (key == "ArrowUp" && curr_show !== 0){
+		if (key == "ArrowUp" && curr_show !== min_show){
 			--curr_show;
 		}
 
