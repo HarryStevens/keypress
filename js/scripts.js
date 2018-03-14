@@ -389,6 +389,9 @@ function draw(options){
           .style("opacity", 0)
     }
 
+    // always display axis text. Fixes bug https://github.com/HarryStevens/keypress/issues/18
+    x_axis_selector.selectAll(".tick text").style("display", "block");
+
 
   }
 }
@@ -424,7 +427,8 @@ d3.selectAll("select").on("change", () => {
 
 // draw bars or not
 var last_size_value,
-  last_x_value;
+  last_x_value,
+  last_text_setting;
 
 d3.selectAll("input[name='bars']").on("change", () => {
   
@@ -440,22 +444,28 @@ d3.selectAll("input[name='bars']").on("change", () => {
   // if bars_position is on, set size to none (middle) and horizontal position to pitch (indx)
   if (bars_position == "on"){
 
+    // store current text and set it to off
+    last_text_setting = getTextChecked();
+    d3.selectAll("input[name='text'][value='none']").property("checked", true);
+
     // first draw it
     draw({show_all: get4dChecked(), transition: 1500, bars: getBarsChecked(), shape_transition: "toBars"});
     
-    // store current
+    // store current dropdowns
     last_size_value = size_data_select.node().value;
     last_x_value = x_data_select.node().value;
 
-    // set
+    // set dropdowns
     size_data_select.property("value", "middle");
     x_data_select.property("value", "indx");  
+
   }
 
   // otherwise, set size and horizontal position to what they were previously
   else {
     size_data_select.property("value", last_size_value);
     x_data_select.property("value", last_x_value);
+    d3.selectAll("input[name='text'][value='" + last_text_setting + "']").property("checked", true);
 
     // draw it afterwards
     draw({show_all: get4dChecked(), transition: 1500, bars: getBarsChecked(), shape_transition: "toCircles"});
@@ -487,6 +497,9 @@ function enableOrDisableBars(){
     // and the size and horizontal position need to be reset to their last position
     size_data_select.property("value", last_size_value);
     x_data_select.property("value", last_x_value);
+
+    // set the text
+    d3.selectAll("input[name='text'][value='" + last_text_setting + "']").property("checked", true);
   } 
 
   // if 4d is on, remember the last position of the bars radio, and set it to that
@@ -507,6 +520,9 @@ function get4dChecked(){
 }
 function getBarsChecked(){
   return d3.select("input[name='bars']:checked").property("value");
+}
+function getTextChecked(){
+  return d3.select("input[name='text']:checked").property("value");
 }
 
 // show or hide the controls
