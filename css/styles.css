@@ -50,9 +50,6 @@ body {
 	font-size: .75em;
 }
 
-#display-4d {
-	margin-left: -10000px;
-}
-.domain {
-	display: none;
+select:disabled, select:disabled > option {
+	color: #ccc;
 }
