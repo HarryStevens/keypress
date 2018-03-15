@@ -281,6 +281,17 @@ function draw(options){
         .domain([0, max_notes]);
   }
 
+  // the circle or rect paths
+  var circle_path = d => shape2path.circle({cx: d.x, cy: d.y, r: rescale * scale_size(d[size_data_value])});
+  var circle_path_zero = d => shape2path.circle({cx: d.x, cy: d.y, r: 0});
+  var rect_path = () => {};
+  var rect_path_zero = () => {};
+  if (options.bars == "on" || options.shape_transition !== "none") {
+    rect_path = d => shape2path.rect({x: bar_x(d.id), y: bar_y(d.note_index), width: bar_x.bandwidth(), height: inner_height / max_notes});
+    rect_path_zero = d => shape2path.rect({x: bar_x(d.id) + bar_x.bandwidth() / 2, y: bar_y(d.note_index) + inner_height / last_max_notes / 2, width: 0, height: 0})
+  }
+
+
   circle = svg.selectAll(".circle")
       .data(options.bars == "on" ? out : draw_data, d => d[draw_property]);  
 
@@ -288,33 +299,20 @@ function draw(options){
       .data(draw_data, d => d[draw_property]);
 
   // handle the exits
-  if (options.transition !== 0){
+  if (options.bars == "on") bar_y.domain([0, last_max_notes]) // the y domain must be based on the last max notes
 
-    if (options.bars == "on") bar_y.domain([0, last_max_notes]) // the y domain must be based on the last max notes
+  circle.exit()
+    .transition()
+    .duration(options.transition)  
+      .attr("d", d => options.bars == "on" ? rect_path_zero(d) : circle_path_zero(d))
+    .remove();
 
-    circle.exit()
-      .transition()
-      .duration(options.transition)  
-        .attr("d", d => options.bars == "on" ? shape2path.rect({x: bar_x(d.id) + bar_x.bandwidth() / 2, y: bar_y(d.note_index) + inner_height / last_max_notes / 2, width: 0, height: 0}) : shape2path.circle({cx: d.x, cy: d.y, r: 0}))
-      .remove();
-
-    text.exit()
-      .transition()
-      .duration(options.transition)
-        .attr("dy", 0)
-        .style("font-size", 0)
-      .remove();
-
-  } else {
-    circle.exit().remove();
-    text.exit().remove();
-  }
-
-
-  // the circle or rect paths
-  var circle_path = d => shape2path.circle({cx: d.x, cy: d.y, r: rescale * scale_size(d[size_data_value])});
-  var rect_path = () => {};
-  if (options.bars == "on" || options.shape_transition !== "none") rect_path = d => shape2path.rect({x: bar_x(d.id), y: bar_y(d.note_index), width: bar_x.bandwidth(), height: inner_height / max_notes});
+  text.exit()
+    .transition()
+    .duration(options.transition)
+      .attr("dy", 0)
+      .style("font-size", 0)
+    .remove();
 
   // shape transitions
   if (options.shape_transition == "none") {
@@ -345,14 +343,17 @@ function draw(options){
   
   circle.enter().append("path")
       .attr("class", d => "circle circle-" + d.id)
-      .attr("d", d => options.bars == "on" ? rect_path(d) : circle_path(d))
       .style("fill", d => scale_color(d[color_data_value]))
       .style("display", d => d.duration == 0 ? "none" : d3.selectAll("input[name='circle']:checked").property("value"))
+      .attr("d", d => options.bars == "on" ? rect_path_zero(d) : circle_path_zero(d))
+    .transition()
+    .duration(1500)
+      .attr("d", d => options.bars == "on" ? rect_path(d) : circle_path(d))
 
   text.transition().duration(options.transition)
       .attr("x", d => d.x)
       .attr("y", d => d.y)
-      .attr("dy", d => rescale * scale_size(d[size_data_value]) / 4)
+      .attr("dy", d => rescale * scale_size(d[size_data_value]) / 3.3)
       .style("font-size", d => rescale * scale_size(d[size_data_value]) + "px")
       .style("fill", color_data_value == "none" && d3.selectAll("input[name='text']:checked").property("value") == "block" ? "#fff" : "#000")
       .style("display", d => d.duration == 0 ? "none" : d3.selectAll("input[name='text']:checked").property("value"))
@@ -363,10 +364,14 @@ function draw(options){
       .text(d => d.note)
       .attr("x", d => d.x)
       .attr("y", d => d.y)
-      .attr("dy", d => rescale * scale_size(d[size_data_value]) / 4)
-      .style("font-size", d => rescale * scale_size(d[size_data_value]) + "px")
       .style("fill", color_data_value == "none" && d3.selectAll("input[name='text']:checked").property("value") == "block" ? "#fff" : "#000")
       .style("display", d => d.duration == 0 ? "none" : d3.selectAll("input[name='text']:checked").property("value"))
+      .attr("dy", d => 0)
+      .style("font-size", d => "0px")
+    .transition()
+    .duration(1500)
+      .attr("dy", d => rescale * scale_size(d[size_data_value]) / 3.3)
+      .style("font-size", d => rescale * scale_size(d[size_data_value]) + "px")
 
   // axis
   if (options.bars == "on" || options.shape_transition == "toCircles") {
