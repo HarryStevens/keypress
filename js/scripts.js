@@ -288,15 +288,19 @@ function draw(options){
   var rect_path_zero = () => {};
   if (options.bars == "on" || options.shape_transition !== "none") {
     rect_path = d => shape2path.rect({x: bar_x(d.id), y: bar_y(d.note_index), width: bar_x.bandwidth(), height: inner_height / max_notes});
-    rect_path_zero = d => shape2path.rect({x: bar_x(d.id) + bar_x.bandwidth() / 2, y: bar_y(d.note_index) + inner_height / last_max_notes / 2, width: 0, height: 0})
+    rect_path_zero = d => shape2path.rect({x: bar_x(d.id) + bar_x.bandwidth() / 2, y: bar_y(d.note_index) + inner_height / last_max_notes / 2, width: 0, height: 0});
   }
 
+
+  // JOIN
 
   circle = svg.selectAll(".circle")
       .data(options.bars == "on" ? out : draw_data, d => d[draw_property]);  
 
   text = svg.selectAll(".text")
-      .data(draw_data, d => d[draw_property]);
+      .data(options.bars == "on" ? out : draw_data, d => d[draw_property]);
+
+  // EXIT
 
   // handle the exits
   if (options.bars == "on") bar_y.domain([0, last_max_notes]) // the y domain must be based on the last max notes
@@ -314,22 +318,49 @@ function draw(options){
       .style("font-size", 0)
     .remove();
 
-  // shape transitions
+
+  // UPDATE
+
+  // normal transition, not in between shapes
   if (options.shape_transition == "none") {
     circle.transition().duration(options.transition)
         .attr("d", d => options.bars == "on" ? rect_path(d) : circle_path(d))
         .style("fill", d => scale_color(d[color_data_value]))
         .style("display", d => d.duration == 0 ? "none" : d3.selectAll("input[name='circle']:checked").property("value"));
+
+    text.transition().duration(options.transition)
+        .attr("x", d => d.x)
+        .attr("y", d => d.y)
+        .attr("dy", d => rescale * scale_size(d[size_data_value]) / 3.3)
+        .style("font-size", d => rescale * scale_size(d[size_data_value]) + "px")
+        .style("fill", color_data_value == "none" && d3.selectAll("input[name='text']:checked").property("value") == "block" ? "#fff" : "#000")
+        .style("display", d => d.duration == 0 ? "none" : d3.selectAll("input[name='text']:checked").property("value"));
   
   }
+
+  // transition from circles to bars
   else if (options.shape_transition == "toBars"){
 
     circle.transition().duration(options.transition)
         .attrTween("d", d => flubber.interpolate( flubber.splitPathString( circle_path(d) )[1], rect_path(d) ));
-  
-  } else if (options.shape_transition == "toCircles"){
 
-    // this extra transition is necessary to fix a bug
+    text
+        .attr("x", d => d.x)
+        .attr("y", d => d.y)
+        .attr("dy", d => rescale * scale_size(d[size_data_value]) / 3.3)
+        .style("font-size", d => rescale * scale_size(d[size_data_value]) + "px")
+        .style("fill", color_data_value == "none" && d3.selectAll("input[name='text']:checked").property("value") == "block" ? "#fff" : "#000")
+        .style("display", d => d.duration == 0 ? "none" : d3.selectAll("input[name='text']:checked").property("value"))
+      .transition().duration(options.transition)
+        .attr("x", d => bar_x(d.id) + bar_x.bandwidth() / 2)
+        .attr("y", d => bar_y(d.note_index) + inner_height / last_max_notes / 2)
+  
+  }
+
+  // transition from bars to circles
+  else if (options.shape_transition == "toCircles"){
+
+    // the double transition is necessary to fix a bug
     // https://github.com/HarryStevens/keypress/issues/13
     circle
       .transition()
@@ -338,8 +369,23 @@ function draw(options){
       .transition()
       .duration(0)
         .attr("d", d => circle_path(d));
-        
+ 
+    text
+        .attr("x", d => bar_x(d.id) + bar_x.bandwidth() / 2)
+        .attr("y", d => bar_y(d.note_index) + inner_height / last_max_notes / 2)
+        .style("font-size", (1 / last_max_notes) * 60)
+        .attr("dy", (1 / last_max_notes) * 30)
+        .style("fill", color_data_value == "none" && d3.selectAll("input[name='text']:checked").property("value") == "block" ? "#fff" : "#000")
+        .style("display", d => d.duration == 0 ? "none" : d3.selectAll("input[name='text']:checked").property("value"))
+      .transition().duration(options.transition)
+        .attr("x", d => d.x)
+        .attr("y", d => d.y)
+        .attr("dy", d => rescale * scale_size(d[size_data_value]) / 3.3)
+        .style("font-size", d => rescale * scale_size(d[size_data_value]) + "px")
+
   }
+
+  // ENTER
   
   circle.enter().append("path")
       .attr("class", d => "circle circle-" + d.id)
@@ -348,15 +394,7 @@ function draw(options){
       .attr("d", d => options.bars == "on" ? rect_path_zero(d) : circle_path_zero(d))
     .transition()
     .duration(1500)
-      .attr("d", d => options.bars == "on" ? rect_path(d) : circle_path(d))
-
-  text.transition().duration(options.transition)
-      .attr("x", d => d.x)
-      .attr("y", d => d.y)
-      .attr("dy", d => rescale * scale_size(d[size_data_value]) / 3.3)
-      .style("font-size", d => rescale * scale_size(d[size_data_value]) + "px")
-      .style("fill", color_data_value == "none" && d3.selectAll("input[name='text']:checked").property("value") == "block" ? "#fff" : "#000")
-      .style("display", d => d.duration == 0 ? "none" : d3.selectAll("input[name='text']:checked").property("value"))
+      .attr("d", d => options.bars == "on" ? rect_path(d) : circle_path(d));
 
   text.enter().append("text")
       .attr("class", d => "text text-" + d.id)
