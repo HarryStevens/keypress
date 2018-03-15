@@ -41,10 +41,31 @@ div {
 	width: 10%;
 }
 
+.image-container {
+	max-width: 620px;
+	margin: 0 auto;
+	display: table;
+}
+.image-container img {
+	width: 100%;
+}
+
 
 .sub-text {
 	font-size: .9em;
 	color: #888;
+}
+
+.source {
+	color:#888;
+	margin-top: 5px;
+}
+.source a {
+	text-decoration: underline;
+	color: #888;
+}
+.source a:hover {
+	color: #444;
 }
 
 .show {
