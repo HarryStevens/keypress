@@ -342,7 +342,11 @@ function draw(options){
   // transition from circles to bars
   else if (options.shape_transition == "toBars"){
 
-    circle.transition().duration(options.transition)
+    circle
+        .style("stroke-width", 1)
+      .transition()
+      .duration(options.transition)
+        .style("stroke-width", 0)
         .attrTween("d", d => flubber.interpolate( flubber.splitPathString( circle_path(d) )[1], rect_path(d) ));
 
     text
@@ -364,8 +368,10 @@ function draw(options){
     // the double transition is necessary to fix a bug
     // https://github.com/HarryStevens/keypress/issues/13
     circle
+        .style("stroke-width", 0)
       .transition()
       .duration(options.transition)
+        .style("stroke-width", 1)
         .attrTween("d", d => flubber.interpolate( rect_path(d), flubber.splitPathString( circle_path(d) )[1]))
       .transition()
       .duration(0)
@@ -392,7 +398,7 @@ function draw(options){
       .attr("class", d => "circle circle-" + d.id)
       .style("fill", d => scale_color(d[color_data_value]))
       .style("display", d => d.duration == 0 ? "none" : d3.selectAll("input[name='circle']:checked").property("value"))
-      .style("")
+      .style("stroke-width", options.bars == "on" ? 0 : 1)
       .attr("d", d => options.bars == "on" ? rect_path_zero(d) : circle_path_zero(d))
     .transition()
     .duration(1500)
