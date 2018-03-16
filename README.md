@@ -1,4 +1,4 @@
-#synth-o-viz
+# synth-o-viz
 
 Synth-O-Viz is a data visualization instrument.
 
