@@ -198,6 +198,7 @@ var last_max_notes = 0; // you need this for bar exits
 // shape_transition - string - "none", "toBars", "toCircles"
 // exiting - boolean - true if we're reseting the 4d mode
 function draw(options){  
+
   // this is the center line, which is needed for drawing circles but not rects
   d3.select("line").transition().duration(options.transition).style("opacity", options.bars === "on" ? 0 : 1);
 
@@ -391,6 +392,7 @@ function draw(options){
       .attr("class", d => "circle circle-" + d.id)
       .style("fill", d => scale_color(d[color_data_value]))
       .style("display", d => d.duration == 0 ? "none" : d3.selectAll("input[name='circle']:checked").property("value"))
+      .style("")
       .attr("d", d => options.bars == "on" ? rect_path_zero(d) : circle_path_zero(d))
     .transition()
     .duration(1500)
@@ -432,8 +434,12 @@ function draw(options){
           .style("opacity", 1)
         .transition().duration(options.transition)
           .style("opacity", 0)
+    } else if (options.shape_transition == "none"){
+      x_axis_selector.style("opacity", 1);
     }
 
+  } else {
+    x_axis_selector.style("opacity", 0);
   }
 
   // always show circles if bars is on
