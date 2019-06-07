@@ -63,7 +63,7 @@ var svg = d3.select("#display-3d").append("svg").attr("width", width).attr("heig
 
 // the size scale range max needs to change if there are a lot of circles
 var size_range_max = height; 
-var scale_size = d3.scaleLinear().range([0, size_range_max]).domain([0, 1200]);
+var scale_size = d3.scaleSqrt().range([0, size_range_max]).domain([0, 1200]);
 
 var scale_color = d3.scaleLinear().range(["tomato", "steelblue"]).domain(d3.extent(dimension_options.off.data, d => d[color_data_value]));
 var scale_x = d3.scaleLinear().range([200, width - 200]).domain(d3.extent(dimension_options.off.data, d => d[x_data_value]));
