@@ -1,0 +1,63 @@
+body {
+  margin: 100px auto;
+  max-width: 800px;
+}
+.shape {
+  stroke: #fff;
+  transition: fill 1s;
+}
+.shape.asia {
+  fill: #e78ac3;
+}
+.shape.africa {
+  fill: #8da0cb;
+}
+.shape.europe {
+  fill: #fc8d62;
+}
+.shape.n-america {
+  fill: #66c2a5;
+}
+.shape.s-america {
+  fill: #ffd92f;
+}
+.shape.australia {
+  fill: #a6d854;
+}
+.shape.no-color {
+  fill: #ccc;
+}
+
+text {
+  opacity: 1;
+  transition: opacity 1s;
+}
+text.hiding {
+  opacity: 0;
+}
+.label {
+  font-family: "Helvetica Neue", sans-serif;
+  text-anchor: middle;
+  text-shadow: -3px -3px 1px rgba(255, 255, 255, 0.4), -3px -2px 1px rgba(255, 255, 255, 0.4), -3px -1px 1px rgba(255, 255, 255, 0.4), -3px 0px 1px rgba(255, 255, 255, 0.4), -3px 1px 1px rgba(255, 255, 255, 0.4), -3px 2px 1px rgba(255, 255, 255, 0.4), -3px 3px 1px rgba(255, 255, 255, 0.4), -2px -3px 1px rgba(255, 255, 255, 0.4), -2px -2px 1px rgba(255, 255, 255, 0.4), -2px -1px 1px rgba(255, 255, 255, 0.4), -2px 0px 1px rgba(255, 255, 255, 0.4), -2px 1px 1px rgba(255, 255, 255, 0.4), -2px 2px 1px rgba(255, 255, 255, 0.4), -2px 3px 1px rgba(255, 255, 255, 0.4), -1px -3px 1px rgba(255, 255, 255, 0.4), -1px -2px 1px rgba(255, 255, 255, 0.4), -1px -1px 1px rgba(255, 255, 255, 0.4), -1px 0px 1px rgba(255, 255, 255, 0.4), -1px 1px 1px rgba(255, 255, 255, 0.4), -1px 2px 1px rgba(255, 255, 255, 0.4), -1px 3px 1px rgba(255, 255, 255, 0.4), 0px -3px 1px rgba(255, 255, 255, 0.4), 0px -2px 1px rgba(255, 255, 255, 0.4), 0px -1px 1px rgba(255, 255, 255, 0.4), 0px 1px 1px rgba(255, 255, 255, 0.4), 0px 2px 1px rgba(255, 255, 255, 0.4), 0px 3px 1px rgba(255, 255, 255, 0.4), 1px -3px 1px rgba(255, 255, 255, 0.4), 1px -2px 1px rgba(255, 255, 255, 0.4), 1px -1px 1px rgba(255, 255, 255, 0.4), 1px 0px 1px rgba(255, 255, 255, 0.4), 1px 1px 1px rgba(255, 255, 255, 0.4), 1px 2px 1px rgba(255, 255, 255, 0.4), 1px 3px 1px rgba(255, 255, 255, 0.4), 2px -3px 1px rgba(255, 255, 255, 0.4), 2px -2px 1px rgba(255, 255, 255, 0.4), 2px -1px 1px rgba(255, 255, 255, 0.4), 2px 0px 1px rgba(255, 255, 255, 0.4), 2px 1px 1px rgba(255, 255, 255, 0.4), 2px 2px 1px rgba(255, 255, 255, 0.4), 2px 3px 1px rgba(255, 255, 255, 0.4), 3px -3px 1px rgba(255, 255, 255, 0.4), 3px -2px 1px rgba(255, 255, 255, 0.4), 3px -1px 1px rgba(255, 255, 255, 0.4), 3px 0px 1px rgba(255, 255, 255, 0.4), 3px 1px 1px rgba(255, 255, 255, 0.4), 3px 2px 1px rgba(255, 255, 255, 0.4), 3px 3px 1px rgba(255, 255, 255, 0.4);
+}
+.value {
+  font-family: "Helvetica Neue", sans-serif;
+  text-anchor: middle;
+  text-shadow: -3px -3px 1px rgba(255, 255, 255, 0.4), -3px -2px 1px rgba(255, 255, 255, 0.4), -3px -1px 1px rgba(255, 255, 255, 0.4), -3px 0px 1px rgba(255, 255, 255, 0.4), -3px 1px 1px rgba(255, 255, 255, 0.4), -3px 2px 1px rgba(255, 255, 255, 0.4), -3px 3px 1px rgba(255, 255, 255, 0.4), -2px -3px 1px rgba(255, 255, 255, 0.4), -2px -2px 1px rgba(255, 255, 255, 0.4), -2px -1px 1px rgba(255, 255, 255, 0.4), -2px 0px 1px rgba(255, 255, 255, 0.4), -2px 1px 1px rgba(255, 255, 255, 0.4), -2px 2px 1px rgba(255, 255, 255, 0.4), -2px 3px 1px rgba(255, 255, 255, 0.4), -1px -3px 1px rgba(255, 255, 255, 0.4), -1px -2px 1px rgba(255, 255, 255, 0.4), -1px -1px 1px rgba(255, 255, 255, 0.4), -1px 0px 1px rgba(255, 255, 255, 0.4), -1px 1px 1px rgba(255, 255, 255, 0.4), -1px 2px 1px rgba(255, 255, 255, 0.4), -1px 3px 1px rgba(255, 255, 255, 0.4), 0px -3px 1px rgba(255, 255, 255, 0.4), 0px -2px 1px rgba(255, 255, 255, 0.4), 0px -1px 1px rgba(255, 255, 255, 0.4), 0px 1px 1px rgba(255, 255, 255, 0.4), 0px 2px 1px rgba(255, 255, 255, 0.4), 0px 3px 1px rgba(255, 255, 255, 0.4), 1px -3px 1px rgba(255, 255, 255, 0.4), 1px -2px 1px rgba(255, 255, 255, 0.4), 1px -1px 1px rgba(255, 255, 255, 0.4), 1px 0px 1px rgba(255, 255, 255, 0.4), 1px 1px 1px rgba(255, 255, 255, 0.4), 1px 2px 1px rgba(255, 255, 255, 0.4), 1px 3px 1px rgba(255, 255, 255, 0.4), 2px -3px 1px rgba(255, 255, 255, 0.4), 2px -2px 1px rgba(255, 255, 255, 0.4), 2px -1px 1px rgba(255, 255, 255, 0.4), 2px 0px 1px rgba(255, 255, 255, 0.4), 2px 1px 1px rgba(255, 255, 255, 0.4), 2px 2px 1px rgba(255, 255, 255, 0.4), 2px 3px 1px rgba(255, 255, 255, 0.4), 3px -3px 1px rgba(255, 255, 255, 0.4), 3px -2px 1px rgba(255, 255, 255, 0.4), 3px -1px 1px rgba(255, 255, 255, 0.4), 3px 0px 1px rgba(255, 255, 255, 0.4), 3px 1px 1px rgba(255, 255, 255, 0.4), 3px 2px 1px rgba(255, 255, 255, 0.4), 3px 3px 1px rgba(255, 255, 255, 0.4);
+}
+
+circle {
+  fill: #fff;
+}
+
+.inputs-wrapper {
+  font-family: "Helvetica Neue", sans-serif;
+  font-size: 14px;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+}
+.inputs-wrapper input {
+  margin-right: 5px;
+  margin-top: -2px;
+}

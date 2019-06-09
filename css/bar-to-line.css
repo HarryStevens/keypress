@@ -1,0 +1,80 @@
+body {
+  margin: 100px auto;
+  max-width: 960px;
+}
+
+.headline {
+  font-size: 20px;
+  font-weight: 500;
+  font-family: "Helvetica Neue", sans-serif;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.legend-wrapper {
+  margin: 0 auto;
+  display: table;
+  margin-bottom: 30px;
+}
+.legend-item {
+  position: fixed;
+  cursor: move;
+}
+.legend-item.japan {
+  left: calc(50% - 135px);
+}
+.legend-item.germany {
+  left: calc(50% - 45px);
+}
+.legend-item.nigeria {
+  left: calc(50% + 65px);
+}
+.legend-swatch, .legend-text {
+  display: inline-block;
+  vertical-align: middle;
+}
+.legend-swatch {
+  margin-right: 5px;
+  height: 12px;
+  width: 12px;
+}
+.legend-item.japan .legend-swatch {
+  background: #fc8d62;
+}
+.legend-item.germany .legend-swatch {
+  background: #8da0cb;
+}
+.legend-item.nigeria .legend-swatch {
+  background: #66c2a5;
+}
+.legend-text {
+  font-family: "Helvetica Neue", sans-serif;
+  font-color: #4a4a4a;
+  text-shadow: -3px -3px 1px rgba(255, 255, 255, 0.4), -3px -2px 1px rgba(255, 255, 255, 0.4), -3px -1px 1px rgba(255, 255, 255, 0.4), -3px 0px 1px rgba(255, 255, 255, 0.4), -3px 1px 1px rgba(255, 255, 255, 0.4), -3px 2px 1px rgba(255, 255, 255, 0.4), -3px 3px 1px rgba(255, 255, 255, 0.4), -2px -3px 1px rgba(255, 255, 255, 0.4), -2px -2px 1px rgba(255, 255, 255, 0.4), -2px -1px 1px rgba(255, 255, 255, 0.4), -2px 0px 1px rgba(255, 255, 255, 0.4), -2px 1px 1px rgba(255, 255, 255, 0.4), -2px 2px 1px rgba(255, 255, 255, 0.4), -2px 3px 1px rgba(255, 255, 255, 0.4), -1px -3px 1px rgba(255, 255, 255, 0.4), -1px -2px 1px rgba(255, 255, 255, 0.4), -1px -1px 1px rgba(255, 255, 255, 0.4), -1px 0px 1px rgba(255, 255, 255, 0.4), -1px 1px 1px rgba(255, 255, 255, 0.4), -1px 2px 1px rgba(255, 255, 255, 0.4), -1px 3px 1px rgba(255, 255, 255, 0.4), 0px -3px 1px rgba(255, 255, 255, 0.4), 0px -2px 1px rgba(255, 255, 255, 0.4), 0px -1px 1px rgba(255, 255, 255, 0.4), 0px 1px 1px rgba(255, 255, 255, 0.4), 0px 2px 1px rgba(255, 255, 255, 0.4), 0px 3px 1px rgba(255, 255, 255, 0.4), 1px -3px 1px rgba(255, 255, 255, 0.4), 1px -2px 1px rgba(255, 255, 255, 0.4), 1px -1px 1px rgba(255, 255, 255, 0.4), 1px 0px 1px rgba(255, 255, 255, 0.4), 1px 1px 1px rgba(255, 255, 255, 0.4), 1px 2px 1px rgba(255, 255, 255, 0.4), 1px 3px 1px rgba(255, 255, 255, 0.4), 2px -3px 1px rgba(255, 255, 255, 0.4), 2px -2px 1px rgba(255, 255, 255, 0.4), 2px -1px 1px rgba(255, 255, 255, 0.4), 2px 0px 1px rgba(255, 255, 255, 0.4), 2px 1px 1px rgba(255, 255, 255, 0.4), 2px 2px 1px rgba(255, 255, 255, 0.4), 2px 3px 1px rgba(255, 255, 255, 0.4), 3px -3px 1px rgba(255, 255, 255, 0.4), 3px -2px 1px rgba(255, 255, 255, 0.4), 3px -1px 1px rgba(255, 255, 255, 0.4), 3px 0px 1px rgba(255, 255, 255, 0.4), 3px 1px 1px rgba(255, 255, 255, 0.4), 3px 2px 1px rgba(255, 255, 255, 0.4), 3px 3px 1px rgba(255, 255, 255, 0.4);
+}
+
+.axis .domain {
+  display: none;
+}
+.axis text {
+  fill: #4a4a4a;
+}
+.axis line {
+  stroke: #ddd;
+}
+
+.shape {
+  stroke-width: 1px;
+}
+.shape.japan {
+  fill: #fc8d62;
+  stroke: #fc8d62;
+}
+.shape.germany {
+  fill: #8da0cb;
+  stroke: #8da0cb;
+}
+.shape.nigeria {
+  fill: #66c2a5;
+  stroke: #66c2a5;
+}

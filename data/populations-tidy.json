@@ -1,0 +1,872 @@
+[
+  {
+    "year": 1960,
+    "country": "Germany",
+    "population": 72814900
+  },
+  {
+    "year": 1960,
+    "country": "Japan",
+    "population": 92500572
+  },
+  {
+    "year": 1960,
+    "country": "Nigeria",
+    "population": 45137812
+  },
+  {
+    "year": 1961,
+    "country": "Germany",
+    "population": 73377632
+  },
+  {
+    "year": 1961,
+    "country": "Japan",
+    "population": 94943000
+  },
+  {
+    "year": 1961,
+    "country": "Nigeria",
+    "population": 46062905
+  },
+  {
+    "year": 1962,
+    "country": "Germany",
+    "population": 74025784
+  },
+  {
+    "year": 1962,
+    "country": "Japan",
+    "population": 95832000
+  },
+  {
+    "year": 1962,
+    "country": "Nigeria",
+    "population": 47029140
+  },
+  {
+    "year": 1963,
+    "country": "Germany",
+    "population": 74714353
+  },
+  {
+    "year": 1963,
+    "country": "Japan",
+    "population": 96812000
+  },
+  {
+    "year": 1963,
+    "country": "Nigeria",
+    "population": 48032246
+  },
+  {
+    "year": 1964,
+    "country": "Germany",
+    "population": 75318337
+  },
+  {
+    "year": 1964,
+    "country": "Japan",
+    "population": 97826000
+  },
+  {
+    "year": 1964,
+    "country": "Nigeria",
+    "population": 49066059
+  },
+  {
+    "year": 1965,
+    "country": "Germany",
+    "population": 75963695
+  },
+  {
+    "year": 1965,
+    "country": "Japan",
+    "population": 98883000
+  },
+  {
+    "year": 1965,
+    "country": "Nigeria",
+    "population": 50127214
+  },
+  {
+    "year": 1966,
+    "country": "Germany",
+    "population": 76600311
+  },
+  {
+    "year": 1966,
+    "country": "Japan",
+    "population": 99790000
+  },
+  {
+    "year": 1966,
+    "country": "Nigeria",
+    "population": 51217359
+  },
+  {
+    "year": 1967,
+    "country": "Germany",
+    "population": 76951336
+  },
+  {
+    "year": 1967,
+    "country": "Japan",
+    "population": 100725000
+  },
+  {
+    "year": 1967,
+    "country": "Nigeria",
+    "population": 52341834
+  },
+  {
+    "year": 1968,
+    "country": "Germany",
+    "population": 77294314
+  },
+  {
+    "year": 1968,
+    "country": "Japan",
+    "population": 101061000
+  },
+  {
+    "year": 1968,
+    "country": "Nigeria",
+    "population": 53505978
+  },
+  {
+    "year": 1969,
+    "country": "Germany",
+    "population": 77909682
+  },
+  {
+    "year": 1969,
+    "country": "Japan",
+    "population": 103172000
+  },
+  {
+    "year": 1969,
+    "country": "Nigeria",
+    "population": 54716735
+  },
+  {
+    "year": 1970,
+    "country": "Germany",
+    "population": 78169289
+  },
+  {
+    "year": 1970,
+    "country": "Japan",
+    "population": 104345000
+  },
+  {
+    "year": 1970,
+    "country": "Nigeria",
+    "population": 55981400
+  },
+  {
+    "year": 1971,
+    "country": "Germany",
+    "population": 78312842
+  },
+  {
+    "year": 1971,
+    "country": "Japan",
+    "population": 105697000
+  },
+  {
+    "year": 1971,
+    "country": "Nigeria",
+    "population": 57295210
+  },
+  {
+    "year": 1972,
+    "country": "Germany",
+    "population": 78688452
+  },
+  {
+    "year": 1972,
+    "country": "Japan",
+    "population": 107188000
+  },
+  {
+    "year": 1972,
+    "country": "Nigeria",
+    "population": 58662603
+  },
+  {
+    "year": 1973,
+    "country": "Germany",
+    "population": 78936666
+  },
+  {
+    "year": 1973,
+    "country": "Japan",
+    "population": 108079000
+  },
+  {
+    "year": 1973,
+    "country": "Nigeria",
+    "population": 60110433
+  },
+  {
+    "year": 1974,
+    "country": "Germany",
+    "population": 78967433
+  },
+  {
+    "year": 1974,
+    "country": "Japan",
+    "population": 110162000
+  },
+  {
+    "year": 1974,
+    "country": "Nigeria",
+    "population": 61673559
+  },
+  {
+    "year": 1975,
+    "country": "Germany",
+    "population": 78673554
+  },
+  {
+    "year": 1975,
+    "country": "Japan",
+    "population": 111940000
+  },
+  {
+    "year": 1975,
+    "country": "Nigeria",
+    "population": 63373572
+  },
+  {
+    "year": 1976,
+    "country": "Germany",
+    "population": 78336950
+  },
+  {
+    "year": 1976,
+    "country": "Japan",
+    "population": 112771000
+  },
+  {
+    "year": 1976,
+    "country": "Nigeria",
+    "population": 65226229
+  },
+  {
+    "year": 1977,
+    "country": "Germany",
+    "population": 78159814
+  },
+  {
+    "year": 1977,
+    "country": "Japan",
+    "population": 113863000
+  },
+  {
+    "year": 1977,
+    "country": "Nigeria",
+    "population": 67215805
+  },
+  {
+    "year": 1978,
+    "country": "Germany",
+    "population": 78091820
+  },
+  {
+    "year": 1978,
+    "country": "Japan",
+    "population": 114898000
+  },
+  {
+    "year": 1978,
+    "country": "Nigeria",
+    "population": 69293550
+  },
+  {
+    "year": 1979,
+    "country": "Germany",
+    "population": 78126350
+  },
+  {
+    "year": 1979,
+    "country": "Japan",
+    "population": 115870000
+  },
+  {
+    "year": 1979,
+    "country": "Nigeria",
+    "population": 71391290
+  },
+  {
+    "year": 1980,
+    "country": "Germany",
+    "population": 78288576
+  },
+  {
+    "year": 1980,
+    "country": "Japan",
+    "population": 116782000
+  },
+  {
+    "year": 1980,
+    "country": "Nigeria",
+    "population": 73460724
+  },
+  {
+    "year": 1981,
+    "country": "Germany",
+    "population": 78407907
+  },
+  {
+    "year": 1981,
+    "country": "Japan",
+    "population": 117648000
+  },
+  {
+    "year": 1981,
+    "country": "Nigeria",
+    "population": 75482552
+  },
+  {
+    "year": 1982,
+    "country": "Germany",
+    "population": 78333366
+  },
+  {
+    "year": 1982,
+    "country": "Japan",
+    "population": 118449000
+  },
+  {
+    "year": 1982,
+    "country": "Nigeria",
+    "population": 77472907
+  },
+  {
+    "year": 1983,
+    "country": "Germany",
+    "population": 78128282
+  },
+  {
+    "year": 1983,
+    "country": "Japan",
+    "population": 119259000
+  },
+  {
+    "year": 1983,
+    "country": "Nigeria",
+    "population": 79462277
+  },
+  {
+    "year": 1984,
+    "country": "Germany",
+    "population": 77858685
+  },
+  {
+    "year": 1984,
+    "country": "Japan",
+    "population": 120018000
+  },
+  {
+    "year": 1984,
+    "country": "Nigeria",
+    "population": 81497739
+  },
+  {
+    "year": 1985,
+    "country": "Germany",
+    "population": 77684873
+  },
+  {
+    "year": 1985,
+    "country": "Japan",
+    "population": 120754000
+  },
+  {
+    "year": 1985,
+    "country": "Nigeria",
+    "population": 83613300
+  },
+  {
+    "year": 1986,
+    "country": "Germany",
+    "population": 77720436
+  },
+  {
+    "year": 1986,
+    "country": "Japan",
+    "population": 121492000
+  },
+  {
+    "year": 1986,
+    "country": "Nigeria",
+    "population": 85818502
+  },
+  {
+    "year": 1987,
+    "country": "Germany",
+    "population": 77839920
+  },
+  {
+    "year": 1987,
+    "country": "Japan",
+    "population": 122091000
+  },
+  {
+    "year": 1987,
+    "country": "Nigeria",
+    "population": 88101628
+  },
+  {
+    "year": 1988,
+    "country": "Germany",
+    "population": 78144619
+  },
+  {
+    "year": 1988,
+    "country": "Japan",
+    "population": 122613000
+  },
+  {
+    "year": 1988,
+    "country": "Nigeria",
+    "population": 90450281
+  },
+  {
+    "year": 1989,
+    "country": "Germany",
+    "population": 78751283
+  },
+  {
+    "year": 1989,
+    "country": "Japan",
+    "population": 123116000
+  },
+  {
+    "year": 1989,
+    "country": "Nigeria",
+    "population": 92844353
+  },
+  {
+    "year": 1990,
+    "country": "Germany",
+    "population": 79433029
+  },
+  {
+    "year": 1990,
+    "country": "Japan",
+    "population": 123537000
+  },
+  {
+    "year": 1990,
+    "country": "Nigeria",
+    "population": 95269988
+  },
+  {
+    "year": 1991,
+    "country": "Germany",
+    "population": 80013896
+  },
+  {
+    "year": 1991,
+    "country": "Japan",
+    "population": 123921000
+  },
+  {
+    "year": 1991,
+    "country": "Nigeria",
+    "population": 97726323
+  },
+  {
+    "year": 1992,
+    "country": "Germany",
+    "population": 80624598
+  },
+  {
+    "year": 1992,
+    "country": "Japan",
+    "population": 124229000
+  },
+  {
+    "year": 1992,
+    "country": "Nigeria",
+    "population": 100221563
+  },
+  {
+    "year": 1993,
+    "country": "Germany",
+    "population": 81156363
+  },
+  {
+    "year": 1993,
+    "country": "Japan",
+    "population": 124536000
+  },
+  {
+    "year": 1993,
+    "country": "Nigeria",
+    "population": 102761737
+  },
+  {
+    "year": 1994,
+    "country": "Germany",
+    "population": 81438348
+  },
+  {
+    "year": 1994,
+    "country": "Japan",
+    "population": 124961000
+  },
+  {
+    "year": 1994,
+    "country": "Nigeria",
+    "population": 105355783
+  },
+  {
+    "year": 1995,
+    "country": "Germany",
+    "population": 81678051
+  },
+  {
+    "year": 1995,
+    "country": "Japan",
+    "population": 125439000
+  },
+  {
+    "year": 1995,
+    "country": "Nigeria",
+    "population": 108011465
+  },
+  {
+    "year": 1996,
+    "country": "Germany",
+    "population": 81914831
+  },
+  {
+    "year": 1996,
+    "country": "Japan",
+    "population": 125757000
+  },
+  {
+    "year": 1996,
+    "country": "Nigeria",
+    "population": 110732904
+  },
+  {
+    "year": 1997,
+    "country": "Germany",
+    "population": 82034771
+  },
+  {
+    "year": 1997,
+    "country": "Japan",
+    "population": 126057000
+  },
+  {
+    "year": 1997,
+    "country": "Nigeria",
+    "population": 113522705
+  },
+  {
+    "year": 1998,
+    "country": "Germany",
+    "population": 82047195
+  },
+  {
+    "year": 1998,
+    "country": "Japan",
+    "population": 126400000
+  },
+  {
+    "year": 1998,
+    "country": "Nigeria",
+    "population": 116385750
+  },
+  {
+    "year": 1999,
+    "country": "Germany",
+    "population": 82100243
+  },
+  {
+    "year": 1999,
+    "country": "Japan",
+    "population": 126631000
+  },
+  {
+    "year": 1999,
+    "country": "Nigeria",
+    "population": 119327073
+  },
+  {
+    "year": 2000,
+    "country": "Germany",
+    "population": 82211508
+  },
+  {
+    "year": 2000,
+    "country": "Japan",
+    "population": 126843000
+  },
+  {
+    "year": 2000,
+    "country": "Nigeria",
+    "population": 122352009
+  },
+  {
+    "year": 2001,
+    "country": "Germany",
+    "population": 82349925
+  },
+  {
+    "year": 2001,
+    "country": "Japan",
+    "population": 127149000
+  },
+  {
+    "year": 2001,
+    "country": "Nigeria",
+    "population": 125463434
+  },
+  {
+    "year": 2002,
+    "country": "Germany",
+    "population": 82488495
+  },
+  {
+    "year": 2002,
+    "country": "Japan",
+    "population": 127445000
+  },
+  {
+    "year": 2002,
+    "country": "Nigeria",
+    "population": 128666710
+  },
+  {
+    "year": 2003,
+    "country": "Germany",
+    "population": 82534176
+  },
+  {
+    "year": 2003,
+    "country": "Japan",
+    "population": 127718000
+  },
+  {
+    "year": 2003,
+    "country": "Nigeria",
+    "population": 131972533
+  },
+  {
+    "year": 2004,
+    "country": "Germany",
+    "population": 82516260
+  },
+  {
+    "year": 2004,
+    "country": "Japan",
+    "population": 127761000
+  },
+  {
+    "year": 2004,
+    "country": "Nigeria",
+    "population": 135393616
+  },
+  {
+    "year": 2005,
+    "country": "Germany",
+    "population": 82469422
+  },
+  {
+    "year": 2005,
+    "country": "Japan",
+    "population": 127773000
+  },
+  {
+    "year": 2005,
+    "country": "Nigeria",
+    "population": 138939478
+  },
+  {
+    "year": 2006,
+    "country": "Germany",
+    "population": 82376451
+  },
+  {
+    "year": 2006,
+    "country": "Japan",
+    "population": 127854000
+  },
+  {
+    "year": 2006,
+    "country": "Nigeria",
+    "population": 142614094
+  },
+  {
+    "year": 2007,
+    "country": "Germany",
+    "population": 82266372
+  },
+  {
+    "year": 2007,
+    "country": "Japan",
+    "population": 128001000
+  },
+  {
+    "year": 2007,
+    "country": "Nigeria",
+    "population": 146417024
+  },
+  {
+    "year": 2008,
+    "country": "Germany",
+    "population": 82110097
+  },
+  {
+    "year": 2008,
+    "country": "Japan",
+    "population": 128063000
+  },
+  {
+    "year": 2008,
+    "country": "Nigeria",
+    "population": 150347390
+  },
+  {
+    "year": 2009,
+    "country": "Germany",
+    "population": 81902307
+  },
+  {
+    "year": 2009,
+    "country": "Japan",
+    "population": 128047000
+  },
+  {
+    "year": 2009,
+    "country": "Nigeria",
+    "population": 154402181
+  },
+  {
+    "year": 2010,
+    "country": "Germany",
+    "population": 81776930
+  },
+  {
+    "year": 2010,
+    "country": "Japan",
+    "population": 128070000
+  },
+  {
+    "year": 2010,
+    "country": "Nigeria",
+    "population": 158578261
+  },
+  {
+    "year": 2011,
+    "country": "Germany",
+    "population": 80274983
+  },
+  {
+    "year": 2011,
+    "country": "Japan",
+    "population": 127833000
+  },
+  {
+    "year": 2011,
+    "country": "Nigeria",
+    "population": 162877076
+  },
+  {
+    "year": 2012,
+    "country": "Germany",
+    "population": 80425823
+  },
+  {
+    "year": 2012,
+    "country": "Japan",
+    "population": 127629000
+  },
+  {
+    "year": 2012,
+    "country": "Nigeria",
+    "population": 167297284
+  },
+  {
+    "year": 2013,
+    "country": "Germany",
+    "population": 80645605
+  },
+  {
+    "year": 2013,
+    "country": "Japan",
+    "population": 127445000
+  },
+  {
+    "year": 2013,
+    "country": "Nigeria",
+    "population": 171829303
+  },
+  {
+    "year": 2014,
+    "country": "Germany",
+    "population": 80982500
+  },
+  {
+    "year": 2014,
+    "country": "Japan",
+    "population": 127276000
+  },
+  {
+    "year": 2014,
+    "country": "Nigeria",
+    "population": 176460502
+  },
+  {
+    "year": 2015,
+    "country": "Germany",
+    "population": 81686611
+  },
+  {
+    "year": 2015,
+    "country": "Japan",
+    "population": 127141000
+  },
+  {
+    "year": 2015,
+    "country": "Nigeria",
+    "population": 181181744
+  },
+  {
+    "year": 2016,
+    "country": "Germany",
+    "population": 82348669
+  },
+  {
+    "year": 2016,
+    "country": "Japan",
+    "population": 126994511
+  },
+  {
+    "year": 2016,
+    "country": "Nigeria",
+    "population": 185989640
+  },
+  {
+    "year": 2017,
+    "country": "Germany",
+    "population": 82685827
+  },
+  {
+    "year": 2017,
+    "country": "Japan",
+    "population": 126785797
+  },
+  {
+    "year": 2017,
+    "country": "Nigeria",
+    "population": 190886311
+  }
+]

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+			
+		<link rel="stylesheet" href="css/styles.css" />
+	</head>
+	<body>
+		
+		<div class="dropdown-wrapper">
+			<div class="dropdown-section dropdown-left">
+				<div class="dropdown-container bar-dependent">
+					<div class="name">Size</div>
+					<select id="size-data">
+						<option value="middle">None</option>
+						<option value="duration" selected>Duration</option>
+						<option value="frequency">Pitch</option>
+					</select>
+				</div>
+				<div class="dropdown-container bar-dependent">
+					<div class="name">Color</div>
+					<select id="color-data">
+						<option value="none">None</option>
+						<option value="duration">Duration</option>
+						<option value="frequency" selected>Pitch</option>
+					</select>
+				</div>
+				<div class="dropdown-container bar-dependent">
+					<div class="name">Position</div>
+					<select id="x-position-data">
+						<option value="middle">None</option>
+						<option value="duration">Duration</option>
+						<option value="indx" selected>Pitch</option>
+					</select>
+				</div>
+			</div>
+			<div class="dropdown-section dropdown-right">
+				<div class="dropdown-container bar-dependent">
+					<div class="name">Circle</div>
+					<input checked type="radio" name="circle" value="block" /><span class="radio-option">Show</span> <input type="radio" name="circle" value="none" /><span class="radio-option">Hide</span>
+				</div>
+				<div class="dropdown-container bar-dependent">
+					<div class="name">Text</div>
+					<input type="radio" name="text" value="block" /><span class="radio-option">Show</span> <input checked type="radio" name="text" value="none" /><span class="radio-option">Hide</span>
+				</div>
+				<div class="dropdown-container">
+					<div class="name">4D</div>
+					<input checked type="radio" name="4d" value="off" /><span class="radio-option">Off</span>
+					<input type="radio" name="4d" value="on" /><span class="radio-option">On</span>
+					<button style="margin-left:5px;" id="reset-4d">Reset</button>
+				</div>
+				<div class="dropdown-container bars disabled">
+					<div class="name">Bars</div>
+					<input disabled checked type="radio" name="bars" value="off" /><span class="radio-option">Off</span>
+					<input disabled type="radio" name="bars" value="on" /><span class="radio-option">On</span>
+				</div>
+			</div>
+		</div>
+
+		<div id="display-3d"></div>
+		
+		<script src="lib/d3.min.js"></script>
+		<script src="lib/jeezy.min.js"></script>
+		<script src="lib/shape2path.v2.min.js"></script>
+		<script src="lib/flubber.min.js"></script>
+		<script src="js/scripts.js"></script>
+	</body>
+</html>
