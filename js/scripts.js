@@ -62,8 +62,8 @@ var svg = d3.select("#display-3d").append("svg").attr("width", width).attr("heig
 //scales
 
 // the size scale range max needs to change if there are a lot of circles
-var size_range_max = height; 
-var scale_size = d3.scaleSqrt().range([0, size_range_max]).domain([0, 1200]);
+var size_range_max = height;
+var scale_size = d3.scaleLinear().range([0, size_range_max]).domain([0, 1200]);
 
 var scale_color = d3.scaleLinear().range(["tomato", "steelblue"]).domain(d3.extent(dimension_options.off.data, d => d[color_data_value]));
 var scale_x = d3.scaleLinear().range([200, width - 200]).domain(d3.extent(dimension_options.off.data, d => d[x_data_value]));
@@ -84,7 +84,6 @@ var x_axis_selector = svg.append("g")
 d3.select(document).on("keypress", () => {
 
   var pressedNote = getPressedNote(d3.event.key);
-  console.log(pressedNote);
   var pressedNote_indx = dimension_options.off.data.indexOf(pressedNote);
 
   // if the note being played is not in the currNotes array
@@ -119,8 +118,8 @@ d3.select(document).on("keypress", () => {
 
     dimension_options.off.data[pressedNote_indx].oscillator.start(0);
 
-    d3.select(".circle-" + pressedNote.id).moveToFront();
-    d3.select(".text-" + pressedNote.id).moveToFront();
+    d3.select(".circle-" + pressedNote.id).raise();
+    d3.select(".text-" + pressedNote.id).raise();
 
   }
 
@@ -136,7 +135,9 @@ d3.select(document).on("keypress", () => {
   dimension_options.off.data[pressedNote_indx].timer.stop();
   
   // fade out the gain and remove the oscillator and gain from the current note
-  dimension_options.off.data[pressedNote_indx].gain.gain.setTargetAtTime(0, context.currentTime, 0.2);
+  if (dimension_options.off.data[pressedNote_indx].gain){
+    dimension_options.off.data[pressedNote_indx].gain.gain.setTargetAtTime(0, context.currentTime, 0.2);
+  }
   dimension_options.off.data[pressedNote_indx].oscillator = null;
   dimension_options.off.data[pressedNote_indx].gain = null;  
 
@@ -168,7 +169,7 @@ d3.timer(() => {
 
 // FUNCTIONS TO GET THE DOMAIN BASED ON DROPDOWN SELECTIONS
 function getSizeDomain(size_data_value){
-  return size_data_value == "duration" ? [0, 1200] :
+  return size_data_value == "duration" ? [0, 5000] :
     size_data_value == "frequency" ? [dimension_options.off.data[0].frequency - 100, dimension_options.off.data[dimension_options.off.data.length - 1].frequency * 3] : 
     [1, 12];
 }
@@ -428,7 +429,7 @@ function draw(options){
     x_axis_selector
         .attr("transform", "translate(0, " + (inner_height + margin.top) + ")")
         .call(x_axis)
-        .moveToFront();
+        .raise();
 
     if (options.shape_transition == "toBars") {
       x_axis_selector
