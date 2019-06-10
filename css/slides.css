@@ -1,7 +1,7 @@
 body {
 	margin: 0;
 	font-family: "Helvetica Neue", sans-serif;
-	font-weight: 300;
+	/*font-weight: 300;*/
 }
 div {
 	/*outline: 1px solid black;*/
@@ -43,7 +43,7 @@ div {
 }
 
 .image-container {
-	max-width: 620px;
+	max-width: 850px;
 	margin: 0 auto;
 	display: table;
 }

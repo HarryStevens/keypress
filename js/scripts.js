@@ -171,7 +171,7 @@ d3.timer(() => {
 function getSizeDomain(size_data_value){
   return size_data_value == "duration" ? [0, 5000] :
     size_data_value == "frequency" ? [dimension_options.off.data[0].frequency - 100, dimension_options.off.data[dimension_options.off.data.length - 1].frequency * 3] : 
-    [1, 12];
+    [1, 20];
 }
 
 function getColorDomain(color_data_value){

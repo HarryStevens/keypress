@@ -2,6 +2,15 @@ body {
   margin: 100px auto;
   max-width: 800px;
 }
+
+.headline {
+  font-size: 20px;
+  font-weight: 500;
+  font-family: "Helvetica Neue", sans-serif;
+  text-align: center;
+  margin-bottom: 15px;  
+}
+
 .shape {
   stroke: #fff;
   transition: fill 1s;
@@ -25,7 +34,7 @@ body {
   fill: #a6d854;
 }
 .shape.no-color {
-  fill: #ccc;
+  fill: steelblue;
 }
 
 text {
