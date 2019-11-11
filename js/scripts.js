@@ -155,6 +155,7 @@ d3.select(document).on("keypress", () => {
 
 // A HELPER FUNCTION TO LOOK UP THE NOTE BASED ON THE KEY PRESSED
 function getPressedNote(key){
+  console.log(key);
   var pressedNote = dimension_options.off.data.filter(d => d.keyboard == key);
   return pressedNote.length == 0 ? defaultNote : pressedNote[0];
 }

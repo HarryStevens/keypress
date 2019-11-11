@@ -33,6 +33,17 @@ body {
   pointer-events: none;
   stroke-width: 3px;
 }
+.stack-label {
+  font-family: "Helvetica Neue", sans-serif;
+  font-size: 16px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1s;
+}
+.stack-label.show {
+  opacity: 1;
+}
+
 .shape.asia, .stack-rect.asia {
   fill: #e78ac3;
 }
@@ -95,7 +106,31 @@ text.bg {
 }
 .label text {
   font-weight: bold;
+  transition: fill 1s;
 }
+.label.asia.color text.fg {
+  fill: #7f1a58;
+}
+.label.africa.color text.fg {
+  fill: #304169;
+}
+.label.europe.color text.fg {
+  fill: #962d03;
+}
+.label.n-america.color text.fg {
+  fill: #2c6d5a;
+}
+.label.s-america.color text.fg {
+  fill: #997d00;
+}
+.label.oceania.color text.fg {
+  fill: #587d1c;
+}
+
+
+
+
+
 .value {
   font-family: "Helvetica Neue", sans-serif;
   text-anchor: middle;

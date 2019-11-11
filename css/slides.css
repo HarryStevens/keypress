@@ -58,15 +58,14 @@ div {
 }
 
 .source {
-	color:#888;
 	margin-top: 5px;
 }
 .source a {
 	text-decoration: underline;
-	color: #888;
+	color: #000;
 }
 .source a:hover {
-	color: #444;
+	color: #222;
 }
 
 .show {
