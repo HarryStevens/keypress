@@ -65,7 +65,8 @@ var svg = d3.select("#display-3d").append("svg").attr("width", width).attr("heig
 var size_range_max = height;
 var scale_size = d3.scaleLinear().range([0, size_range_max]).domain([0, 1200]);
 
-var scale_color = d3.scaleLinear().range(["tomato", "steelblue"]).domain(d3.extent(dimension_options.off.data, d => d[color_data_value]));
+var scale_color = d3.scaleLinear().range(["tomato", "steelblue"]).domain(d3.extent(dimension_options.off.data, d => d[color_data_value]))
+// .interpolate(d3.interpolateLab);
 var scale_x = d3.scaleLinear().range([200, width - 200]).domain(d3.extent(dimension_options.off.data, d => d[x_data_value]));
 
 // draw the center line
@@ -155,7 +156,6 @@ d3.select(document).on("keypress", () => {
 
 // A HELPER FUNCTION TO LOOK UP THE NOTE BASED ON THE KEY PRESSED
 function getPressedNote(key){
-  console.log(key);
   var pressedNote = dimension_options.off.data.filter(d => d.keyboard == key);
   return pressedNote.length == 0 ? defaultNote : pressedNote[0];
 }
